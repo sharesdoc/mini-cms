@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cms.im.friend.mapper.FriendshipMapper">
+
+    <resultMap id="friendMap" type="com.cms.im.friend.Friendship">
+        <result property="userId" column="user_id"/>
+        <result property="friendId" column="friend_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectFriendIds" resultType="string">
+        SELECT friend_id FROM cms_friendship WHERE user_id=#{userId}
+    </select>
+
+    <select id="exists" resultType="int">
+        SELECT COUNT(*) FROM cms_friendship WHERE user_id=#{userId} AND friend_id=#{friendId}
+    </select>
+
+    <insert id="insertPair">
+        INSERT INTO cms_friendship(user_id, friend_id, created_at) VALUES
+        (#{a}, #{b}, #{now}), (#{b}, #{a}, #{now})
+        ON DUPLICATE KEY UPDATE created_at=created_at
+    </insert>
+
+    <select id="selectAll" resultMap="friendMap">
+        SELECT user_id, friend_id, created_at FROM cms_friendship WHERE user_id=#{userId}
+    </select>
+</mapper>

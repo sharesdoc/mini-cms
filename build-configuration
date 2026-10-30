@@ -1,0 +1,20 @@
+# CMS 安装脚本默认编译配置（loc profile）
+# 由 ./install 读取；可用 -e <env> 切换 build-configuration.<env>
+
+NAME=cms
+# 端口（loc）
+SVC_PORT=5172        # 后端 svc
+WEB_PORT=5173        # 前端 web (vite dev)
+# 数据库（使用项目专用 MySQL 容器）
+DB_CONTAINER=cms-database
+DB_HOST=127.0.0.1
+DB_PORT=5171
+DB_NAME=cms
+DB_USER=root
+DB_PASS="${CMS_DB_PASSWORD:-}"
+# Maven
+MVN=mvn
+MVN_SETTINGS=        # 留空用 ~/.m2/settings.xml
+# 运行
+SVC_JAR=svc/target/cms-svc.jar
+INS_JAR=ins/cms-svc.jar

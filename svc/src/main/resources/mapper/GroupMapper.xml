@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cms.im.group.mapper.GroupMapper">
+
+    <resultMap id="groupMap" type="com.cms.im.group.Group">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="muted" column="muted"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO cms_group(id, name, owner_id, muted, created_at)
+        VALUES(#{id}, #{name}, #{ownerId}, #{muted}, #{createdAt})
+    </insert>
+
+    <select id="selectById" resultMap="groupMap">
+        SELECT id, name, owner_id, muted, created_at FROM cms_group WHERE id=#{id}
+    </select>
+
+    <select id="selectIdsByUser" resultType="string">
+        SELECT group_id FROM cms_group_member WHERE user_id=#{userId}
+    </select>
+
+    <update id="updateMuted">
+        UPDATE cms_group SET muted=#{muted} WHERE id=#{id}
+    </update>
+</mapper>

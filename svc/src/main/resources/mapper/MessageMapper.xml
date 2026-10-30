@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cms.im.message.mapper.MessageMapper">
+
+    <resultMap id="msgMap" type="com.cms.im.message.Message">
+        <id property="id" column="id"/>
+        <result property="scopeType" column="scope_type"/>
+        <result property="scopeKey" column="scope_key"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.cms.im.message.Message" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cms_message(scope_type, scope_key, sender_id, content, created_at)
+        VALUES(#{scopeType}, #{scopeKey}, #{senderId}, #{content}, #{createdAt})
+    </insert>
+
+    <select id="selectByScope" resultMap="msgMap">
+        SELECT id, scope_type, scope_key, sender_id, content, created_at
+        FROM cms_message WHERE scope_type=#{scopeType} AND scope_key=#{scopeKey}
+        ORDER BY created_at ASC, id ASC
+    </select>
+
+    <select id="selectLast" resultMap="msgMap">
+        SELECT id, scope_type, scope_key, sender_id, content, created_at
+        FROM cms_message WHERE scope_type=#{scopeType} AND scope_key=#{scopeKey}
+        ORDER BY created_at DESC, id DESC LIMIT 1
+    </select>
+</mapper>

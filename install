@@ -1,0 +1,346 @@
+#!/usr/bin/env bash
+# ============================================================================
+# install — CMS 客户管理系统 安装/编译/启停脚本（源码编译部署型 §C.1-B）
+# 用法：./install [-bciIuURrskltvD] [-d] [-f|-y] [-p <port>] [-e <env>] [-h]
+# 详见 ./install -h
+# ============================================================================
+set -Euo pipefail
+
+# ----------------------------- 配置加载 --------------------------------------
+CONF_FILE="build-configuration"
+ENV="${CMS_ENV:-loc}"
+if [[ -f "$CONF_FILE.$ENV" ]]; then source "$CONF_FILE.$ENV"; elif [[ -f "$CONF_FILE" ]]; then source "$CONF_FILE"; fi
+
+NAME="${NAME:-cms}"
+SVC_PORT="${SVC_PORT:-5172}"
+WEB_PORT="${WEB_PORT:-5173}"
+DB_CONTAINER="${DB_CONTAINER:-cms-database}"
+DB_HOST="${DB_HOST:-127.0.0.1}"
+DB_PORT="${DB_PORT:-5171}"
+DB_NAME="${DB_NAME:-cms}"
+DB_USER="${DB_USER:-root}"
+DB_PASS="${DB_PASS:-${CMS_DB_PASSWORD:-}}"
+MVN="${MVN:-mvn}"
+SVC_JAR="${SVC_JAR:-svc/target/cms-svc.jar}"
+INS_JAR="${INS_JAR:-ins/cms-svc.jar}"
+
+INS_DIR="ins"
+LOG_DIR="log"
+RUN_CFG=".install.cfg"
+SVC_LOG="$LOG_DIR/svc.log"
+WEB_LOG="$LOG_DIR/web.log"
+
+# ----------------------------- 输出着色 --------------------------------------
+if [[ -t 1 ]]; then
+  C_R=$'\033[0;31m'; C_G=$'\033[0;32m'; C_Y=$'\033[1;33m'; C_B=$'\033[0;34m'; C_D=$'\033[0;90m'; C_0=$'\033[0m'
+else
+  C_R=''; C_G=''; C_Y=''; C_B=''; C_D=''; C_0=''
+fi
+log()  { printf "${C_G}[*]${C_0} %s\n" "$*"; }
+warn() { printf "${C_Y}[!]${C_0} %s\n" "$*" >&2; }
+err()  { printf "${C_R}[x]${C_0} %s\n" "$*" >&2; }
+step() { printf "${C_B}[→]${C_0} %s\n" "$*"; }
+die()  { err "$*"; exit 1; }
+# 回显后执行：打印底层命令本身，不静默。凭证一律走环境变量（MYSQL_PWD 等），
+# 不作为参数出现，故直接打印 "$@" 不会泄露明文密码。
+run()  { printf "${C_D}\$ %s${C_0}\n" "$*" >&2; "$@"; }
+
+# ----------------------------- 工具函数 --------------------------------------
+check_cli() {
+  command -v "$1" >/dev/null 2>&1 || die "缺少依赖 '$1'。请参考官方文档安装：$2"
+}
+ensure_dirs() { mkdir -p "$INS_DIR" "$LOG_DIR"; }
+safe_rm() {
+  local p="$1"; [[ -z "$p" || "$p" == "/" || "$p" == "$HOME" ]] && die "拒绝删除危险路径: $p"
+  run rm -rf -- "$p"
+}
+confirm() {
+  # $1=提示；设置 FORCE_YES=1 跳过
+  [[ "${FORCE_YES:-0}" == "1" ]] && return 0
+  local r; read -rp "$(printf "${C_Y}?${C_0} %s [y/N] " "$1")" r
+  [[ "$r" =~ ^[Yy]$ ]]
+}
+port_busy() { lsof -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
+
+# .install.cfg 读写（key=value）
+cfg_get()  { grep -E "^$1=" "$RUN_CFG" 2>/dev/null | tail -1 | cut -d= -f2-; }
+cfg_set()  { mkdir -p "$(dirname "$RUN_CFG")"; touch "$RUN_CFG"; sed -i '' "/^$1=/d" "$RUN_CFG" 2>/dev/null || sed -i "/^$1=/d" "$RUN_CFG"; printf "%s=%s\n" "$1" "$2" >> "$RUN_CFG"; }
+
+# ----------------------------- 数据库（复用容器） ----------------------------
+# db_run：docker exec 进容器内执行 mysql，密码只能走 -p 参数（容器内进程拿不到宿主机
+# MYSQL_PWD 环境变量）。回显命令前把 -p<真实密码> 脱敏成 -p***，避免明文密码打印到终端/日志。
+db_run() {
+  local shown=("$@") i
+  for i in "${!shown[@]}"; do
+    [[ "${shown[$i]}" == "-p${DB_PASS}" ]] && shown[$i]="-p***"
+  done
+  printf "${C_D}\$ %s${C_0}\n" "${shown[*]}" >&2
+  "$@"
+}
+db_exec() {  # $1=SQL
+  db_run docker exec "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASS" -e "$1"
+}
+db_init() {
+  step "初始化数据库（复用容器 ${DB_CONTAINER}）"
+  [[ -n "$DB_PASS" ]] || die "请先设置 CMS_DB_PASSWORD，再初始化数据库"
+  docker ps --format '{{.Names}}' | grep -qx "$DB_CONTAINER" || die "MySQL 容器 $DB_CONTAINER 未运行，请先启动它（docker start ${DB_CONTAINER}）"
+  db_exec "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` DEFAULT CHARSET utf8mb4" || die "建库失败（检查容器与凭证）"
+  if [[ -f svc/src/main/resources/schema.sql ]]; then
+    db_run docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < svc/src/main/resources/schema.sql || warn "schema.sql 执行有告警（表可能已存在，忽略）"
+    log "schema 已应用"
+  fi
+  if [[ -f svc/src/main/resources/data.sql ]]; then
+    db_run docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < svc/src/main/resources/data.sql || true
+  fi
+}
+
+# ----------------------------- 动作 ------------------------------------------
+do_build() {
+  log "编译所有模块（env=${ENV}）"
+  check_cli mvn "https://maven.apache.org/install.html"
+  check_cli npm "https://docs.npmjs.com/downloading-and-installing-node-js-and-npm"
+  step "[svc] Maven package"
+  ( cd svc && run "$MVN" -DskipTests package ) || die "svc 编译失败"
+  step "[web] npm install"
+  ( cd web && run npm install ) || die "web 依赖安装失败"
+  log "编译完成：$SVC_JAR"
+  BUILD_DONE=1   # 标记本轮已编译，供 -i 等跳过重复编译
+}
+
+do_clean() {
+  log "清除编译输出"
+  safe_rm "svc/target"; safe_rm "web/node_modules"; safe_rm "web/dist"
+  log "已清除"
+}
+
+do_install_local() {  # $1=可选目录，默认 ins/
+  local dir="${1:-$INS_DIR}"
+  ensure_dirs
+  [[ "${BUILD_DONE:-0}" == "1" ]] || do_build   # -b 已编译过则跳过，避免 -bi 重复编译
+  step "部署产物到 ${dir}"
+  mkdir -p "$dir"
+  [[ -f "$SVC_JAR" ]] || die "找不到 ${SVC_JAR}，先 -b 编译"
+  run cp -f "$SVC_JAR" "$dir/"
+  [[ -f svc/src/main/resources/application.yml ]] && run cp -f svc/src/main/resources/application.yml "$dir/"
+  log "已安装到 ${dir}（$INS_JAR + 配置）"
+  # 有服务 → 装后启动
+  do_start
+}
+
+do_uninstall_local() {
+  confirm "清除 $INS_DIR 安装内容（保留源码/配置/日志/DB）？" || { warn "已取消"; return; }
+  stop_svc_if_running; stop_web_if_running
+  safe_rm "$INS_DIR"
+  log "已清除本地安装 $INS_DIR"
+}
+
+do_mvn_install() {
+  check_cli mvn "https://maven.apache.org/install.html"
+  ( cd svc && run "$MVN" -DskipTests install ) || die "Maven install 失败"
+  log "已安装到 ~/.m2/repository"
+}
+do_mvn_uninstall() {
+  local repo="$HOME/.m2/repository/com/cms"
+  [[ -d "$repo" ]] || { warn "~/.m2 无 com/cms artifact"; return; }
+  confirm "删除 ~/.m2/repository/com/cms ？" || { warn "已取消"; return; }
+  safe_rm "$repo"; log "已清除 Maven artifact"
+}
+do_mvn_reinstall() { do_mvn_uninstall; do_mvn_install; }
+
+svc_pid()   { cfg_get SVC_PID; }
+web_pid()   { cfg_get WEB_PID; }
+is_running() { local p="$1"; [[ -n "$p" ]] && kill -0 "$p" 2>/dev/null; }
+
+stop_svc_if_running() {
+  local p; p="$(svc_pid)"; if is_running "$p"; then step "停止 svc (pid=$p)"; kill "$p" 2>/dev/null; sleep 1; kill -9 "$p" 2>/dev/null; fi; cfg_set SVC_PID ""
+}
+stop_web_if_running() {
+  local p; p="$(web_pid)"; if is_running "$p"; then step "停止 web (pid=$p)"; kill "$p" 2>/dev/null; sleep 1; kill -9 "$p" 2>/dev/null; fi; cfg_set WEB_PID ""
+  # 兜底：按端口杀 vite/node 监听 WEB_PORT
+  local lip; lip="$(lsof -tiTCP:"$WEB_PORT" -sTCP:LISTEN 2>/dev/null)"; [[ -n "$lip" ]] && kill -9 $lip 2>/dev/null
+}
+
+do_start() {
+  ensure_dirs
+  check_cli java "https://www.oracle.com/java/technologies/downloads/"
+  db_init
+  # svc
+  if is_running "$(svc_pid)"; then warn "svc 已在运行 (pid=$(svc_pid))"; else
+    [[ -f "$SVC_JAR" ]] || die "找不到 ${SVC_JAR}，先 -b 或 -i"
+    port_busy "$SVC_PORT" && die "端口 $SVC_PORT 被占用（用 -p 指定其它端口）"
+    step "启动 svc → :$SVC_PORT"
+    printf "${C_D}\$ java -jar %s --server.port=%s (> %s 2>&1 &)${C_0}\n" "$SVC_JAR" "$SVC_PORT" "$SVC_LOG" >&2
+    SPRING_DATASOURCE_URL="jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true" \
+    SPRING_DATASOURCE_USERNAME="$DB_USER" \
+    SPRING_DATASOURCE_PASSWORD="$DB_PASS" \
+    SVC_PORT="$SVC_PORT" nohup java -jar "$SVC_JAR" --server.port="$SVC_PORT" > "$SVC_LOG" 2>&1 &
+    cfg_set SVC_PID "$!"
+    log "svc pid=$! 日志=$SVC_LOG"
+  fi
+  # web (dev)
+  if is_running "$(web_pid)"; then warn "web 已在运行 (pid=$(web_pid))"; else
+    [[ -d web/node_modules ]] || { step "web 依赖缺失，先 npm install"; ( cd web && run npm install ) || die "web npm install 失败"; }
+    port_busy "$WEB_PORT" && die "端口 ${WEB_PORT} 被占用"
+    step "启动 web (vite dev) → :${WEB_PORT}"
+    # 当前 shell 启动（npm --prefix web 避免 cd 子 shell），$! 即 npm 进程 PID
+    printf "${C_D}\$ npm --prefix web run dev -- --port %s (> %s 2>&1 &)${C_0}\n" "$WEB_PORT" "$WEB_LOG" >&2
+    SVC_PORT="$SVC_PORT" nohup npm --prefix web run dev -- --port "$WEB_PORT" > "$WEB_LOG" 2>&1 &
+    cfg_set WEB_PID "$!"; disown 2>/dev/null || true
+    log "web pid=$(cfg_get WEB_PID) 日志=${WEB_LOG}（/api 代理→:${SVC_PORT}）"
+  fi
+  sleep 2
+  do_info_short
+  show_urls
+}
+do_stop()   { stop_svc_if_running; stop_web_if_running; log "服务已停止"; }
+do_restart(){ do_stop; do_start; }
+
+# 访问地址（-s/-r/-l 显示）
+show_urls() {
+  printf "  访问：${C_B}web${C_0} http://localhost:%s   ${C_B}svc API${C_0} http://localhost:%s\n" "$WEB_PORT" "$SVC_PORT"
+}
+
+do_logs() {
+  show_urls
+  log "日志（Ctrl+C 退出）"
+  [[ -f "$SVC_LOG" || -f "$WEB_LOG" ]] || die "无日志文件（先 -s 启动）"
+  tail -F "$SVC_LOG" "$WEB_LOG" 2>/dev/null
+}
+
+do_info_short() {
+  local sp wp; sp="$(svc_pid)"; wp="$(web_pid)"
+  printf "  svc :${C_B}%s${C_0} %s\n" "$SVC_PORT" "$(is_running "$sp" && echo "${C_G}running(pid=$sp)${C_0}" || echo "${C_D}stopped${C_0}")"
+  printf "  web :${C_B}%s${C_0} %s\n" "$WEB_PORT" "$(is_running "$wp" && echo "${C_G}running(pid=$wp)${C_0}" || echo "${C_D}stopped${C_0}")"
+}
+
+do_info() {
+  log "$NAME 程序信息"
+  do_info_short
+  printf "  db  :${C_B}%s/%s${C_0} 容器=${C_B}%s${C_0}\n" "$DB_HOST" "$DB_PORT" "$DB_CONTAINER"
+  local v=""; [[ -f svc/pom.xml ]] && v="$(awk '/<\/parent>/{f=1} f&&/<version>/{gsub(/.*<version>|<\/version>.*/,"");print;exit}' svc/pom.xml)"
+  printf "  版本: %s  来源: 本地源码（svc Maven + web Vite）\n" "${v:-未知}"
+  printf "  安装目录: %s  日志: %s\n" "$INS_DIR" "$LOG_DIR"
+}
+
+do_purge() {
+  warn "彻底卸载将删除：$INS_DIR/ $LOG_DIR/ ${RUN_CFG}（保留源码与数据库）"
+  confirm "确认彻底卸载？输入 y 继续" || { warn "已取消"; return; }
+  local r; read -rp "$(printf "${C_R}请输入 yes 确认：${C_0}")" r
+  [[ "$r" == "yes" ]] || { warn "未输入 yes，已取消"; return; }
+  do_stop
+  safe_rm "$INS_DIR"; safe_rm "$LOG_DIR"; safe_rm "$RUN_CFG"
+  log "已彻底卸载（数据库与源码保留）"
+}
+
+do_test() {
+  log "执行测试"
+  check_cli mvn "https://maven.apache.org/install.html"
+  ( cd svc && run "$MVN" test ) || die "svc 测试失败"
+  ( cd web && run npm test ) || die "web 测试失败"
+  log "测试通过"
+}
+
+# ----------------------------- 帮助 ------------------------------------------
+usage() {
+cat <<'EOF'
+install — CMS 安装脚本（源码编译部署型）
+
+动作（可连写，按字符序执行）：
+  -b            编译所有模块（svc mvn package + web npm install）
+  -c            清除编译输出（svc/target web/node_modules web/dist）
+  -i [dir]      安装到目录（默认 ins/，含 jar+配置；装后自动启动）
+  -u            清除 -i 安装（保留配置/日志/DB）
+  -I            安装到 Maven 本地仓库（mvn install -DskipTests）
+  -U            清除 Maven artifact（~/.m2/com/cms）
+  -R            重新安装到 Maven 仓库（-U + -I）
+  -s            启动服务（nohup 后台：svc + web dev）
+  -k            停止服务
+  -r            重启服务（-k -s）
+  -l            查看日志（tail -F）
+  -v            程序信息（状态+版本+来源）
+  -D            彻底卸载（清 ins/log/.install.cfg；保留源码与 DB；需输入 yes）
+  -t            执行测试（svc mvn test + web npm test）
+
+修饰符：
+  -d            安装/启动为 daemon（写 launchd plist，macOS）
+  -f|--force    强制覆盖
+  -y|--yes      自动确认（跳过 -u/-D 二次确认）
+
+取值选项（独立书写）：
+  -p <port>     覆盖 svc 端口（web 自动 +1 不变，保持 5173）
+  -e <env>      切换 profile（loc|dev|tst|pro；默认 loc）
+
+示例：
+  ./install -is           安装并启动
+  ./install -b            仅编译
+  ./install -kr           停止后重启
+  ./install -t            跑测试
+  ./install -D -y         彻底卸载（自动确认）
+  ./install -p 6000 -s    用 6000 端口启动 svc
+EOF
+}
+
+# ----------------------------- 参数解析 --------------------------------------
+ACTIONS=""; FORCE_YES=0; FORCE=0; DAEMON=0; JSON=0
+EXTRA=()   # -i 的可选目录参数（必须用 =() 初始化，否则 set -u 下 ${#EXTRA[@]} 报 unbound）
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help|help) usage; exit 0 ;;
+    --json) JSON=1; shift ;;
+    --force|-f) FORCE=1; shift ;;
+    --yes|-y) FORCE_YES=1; shift ;;
+    -e|--env)
+      [[ -z "${2:-}" || "$2" == -* ]] && die "-e 需要参数 <env>"; ENV="$2"; shift 2 ;;
+    -p|--port)
+      [[ -z "${2:-}" || "$2" == -* ]] && die "-p 需要参数 <port>"; SVC_PORT="$2"; shift 2 ;;
+    -*)  # 短参簇（可能混合动作+修饰符 d f y）
+      cluster="${1#-}"; shift
+      for ((i=0;i<${#cluster};i++)); do
+        c="${cluster:$i:1}"
+        case "$c" in
+          b|c|i|u|I|U|R|s|k|r|l|v|D|t) ACTIONS+="$c" ;;
+          d) DAEMON=1 ;;
+          f) FORCE=1 ;;
+          y) FORCE_YES=1 ;;
+          *) die "未知选项: -${c}（./install -h 查看用法）" ;;
+        esac
+      done ;;
+    *) # 非选项参数：-i 的目录
+      EXTRA+=("$1"); shift ;;
+  esac
+done
+
+[[ -n "$ACTIONS" || ${#EXTRA[@]} -gt 0 ]] || { usage; exit 0; }
+
+# ----------------------------- 依赖前置检查 ----------------------------------
+check_cli docker "https://docs.docker.com/get-docker/"
+
+# ----------------------------- 派发（按字符序） ------------------------------
+# -i 若带目录参数，取 EXTRA[0]
+INSTALL_DIR="${EXTRA[0]:-$INS_DIR}"
+
+# 处理顺序：先 c(清) → b(编译) → I/U/R(maven) → i(安装) → u(清安装) → t(测) → k(停) → s(启) → r(重启) → l(日志) → v(信息) → D(彻底卸载)
+# 去重保序
+SORTED="$(printf '%s\n' $(echo "$ACTIONS" | grep -o . | awk '!seen[$0]++' | tr -d '\n'))"
+for ((idx=0; idx<${#SORTED}; idx++)); do
+  act="${SORTED:$idx:1}"
+  case "$act" in
+    c) do_clean ;;
+    b) do_build ;;
+    I) do_mvn_install ;;
+    U) do_mvn_uninstall ;;
+    R) do_mvn_reinstall ;;
+    i) do_install_local "$INSTALL_DIR" ;;
+    u) do_uninstall_local ;;
+    t) do_test ;;
+    k) do_stop ;;
+    s) do_start ;;
+    r) do_restart ;;
+    l) do_logs ;;
+    v) do_info ;;
+    D) do_purge ;;
+    *) die "未实现动作: $act" ;;
+  esac
+done
+
+echo "${C_G}「任务完成」${C_0}"

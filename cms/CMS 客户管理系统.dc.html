@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#F1F2F5}
+body{font-family:'Plus Jakarta Sans','Noto Sans SC',system-ui,-apple-system,sans-serif;color:#12151C;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+input,button,textarea,select{font-family:inherit;outline:none}
+input::placeholder,textarea::placeholder{color:#A9AFBB}
+a{color:#FF6A00;text-decoration:none}
+a:hover{color:#D94C00}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#D5D9E0;border-radius:9px;border:2px solid #F1F2F5}
+@keyframes flyUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes sheetUp{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:radial-gradient(1200px 600px at 80% -10%,rgba(255,138,43,.13),transparent 60%),radial-gradient(900px 500px at 0% 100%,rgba(91,141,239,.10),transparent 60%),#F1F2F5">
+
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px">
+    <div style="width:100%;max-width:400px;animation:flyUp .5s cubic-bezier(.2,.8,.2,1) both">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:26px">
+        <div style="width:60px;height:60px;border-radius:19px;background:linear-gradient(150deg,#FFA24D,#FF6A00);box-shadow:0 12px 30px -10px rgba(255,106,0,.65);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:21px;letter-spacing:-.04em">C<span style="opacity:.65">M</span>S</div>
+        <div style="text-align:center">
+          <div style="font-size:22px;font-weight:800;letter-spacing:-.03em">{{ t.appName }}</div>
+          <div style="font-size:13px;color:#8A909E;margin-top:5px;letter-spacing:.02em">{{ t.tagline }}</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #EBEDF2;border-radius:22px;padding:22px 20px;box-shadow:0 1px 2px rgba(16,20,28,.04),0 24px 48px -28px rgba(16,20,28,.35)">
+        <div style="display:flex;gap:4px;background:#F3F4F7;border-radius:12px;padding:4px;margin-bottom:20px">
+          <button onClick="{{ goLogin }}" style="flex:1;border:none;border-radius:9px;padding:9px 0;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;background:{{ tabLoginBg }};color:{{ tabLoginFg }};box-shadow:{{ tabLoginSh }}">{{ t.login }}</button>
+          <button onClick="{{ goRegister }}" style="flex:1;border:none;border-radius:9px;padding:9px 0;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;background:{{ tabRegBg }};color:{{ tabRegFg }};box-shadow:{{ tabRegSh }}">{{ t.register }}</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:13px">
+          <label style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:12px;font-weight:600;color:#6B7280;letter-spacing:.02em">{{ t.username }}</span>
+            <input value="{{ v.username }}" onChange="{{ h.username }}" placeholder="{{ userPh }}" style="border:1px solid #E2E5EB;background:#FAFBFC;border-radius:13px;padding:13px 14px;font-size:15px;color:#12151C;transition:border-color .16s" style-focus="border-color:#FF8A2B;background:#fff" />
+          </label>
+          <label style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:12px;font-weight:600;color:#6B7280;letter-spacing:.02em">{{ t.password }}</span>
+            <input type="password" value="{{ v.password }}" onChange="{{ h.password }}" placeholder="{{ t.passwordPh }}" style="border:1px solid #E2E5EB;background:#FAFBFC;border-radius:13px;padding:13px 14px;font-size:15px;color:#12151C;transition:border-color .16s" style-focus="border-color:#FF8A2B;background:#fff" />
+          </label>
+          <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;font-weight:600;color:#6B7280;letter-spacing:.02em">{{ t.confirmPw }}</span>
+              <input type="password" value="{{ v.password2 }}" onChange="{{ h.password2 }}" placeholder="{{ t.confirmPwPh }}" style="border:1px solid #E2E5EB;background:#FAFBFC;border-radius:13px;padding:13px 14px;font-size:15px;color:#12151C;transition:border-color .16s" style-focus="border-color:#FF8A2B;background:#fff" />
+            </label>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:13px;background:#FFF2F0;border:1px solid #FFD9D2;color:#C7361B;font-size:13px;padding:10px 12px;border-radius:11px;animation:pop .2s both">{{ authError }}</div>
+        </sc-if>
+
+        <button onClick="{{ submitAuth }}" style="width:100%;margin-top:18px;border:none;border-radius:14px;padding:15px 0;font-size:15px;font-weight:800;letter-spacing:.06em;color:#fff;cursor:pointer;background:linear-gradient(180deg,#FF9138,#FF6A00);box-shadow:0 10px 22px -10px rgba(255,106,0,.85);transition:transform .12s" style-active="transform:scale(.985)">{{ submitLabel }}</button>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:1px dashed #E9EBF0;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.08em;text-transform:uppercase">{{ t.demoTip }}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onClick="{{ fillAdmin }}" style="flex:1;min-width:120px;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:11px;padding:9px 11px;text-align:left;cursor:pointer;transition:all .16s" style-hover="border-color:#FFB37A;background:#FFF8F2">
+              <div style="font-size:12px;font-weight:700;color:#12151C">{{ t.demoAdmin }}</div>
+              <div style="font-size:11px;color:#9AA0AC;font-variant-numeric:tabular-nums;margin-top:2px">admin</div>
+            </button>
+            <button onClick="{{ fillUser }}" style="flex:1;min-width:120px;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:11px;padding:9px 11px;text-align:left;cursor:pointer;transition:all .16s" style-hover="border-color:#FFB37A;background:#FFF8F2">
+              <div style="font-size:12px;font-weight:700;color:#12151C">{{ t.demoUser }}</div>
+              <div style="font-size:11px;color:#9AA0AC;font-variant-numeric:tabular-nums;margin-top:2px">请在本地配置演示账号</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;justify-content:center">
+        <button onClick="{{ toggleLang }}" style="border:1px solid #E2E5EB;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:600;color:#5A616E;cursor:pointer;transition:all .16s" style-hover="border-color:#FFB37A;color:#FF6A00">{{ langLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:{{ appDir }};min-height:100vh">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
+    <aside style="width:252px;flex:none;background:#fff;border-right:1px solid #EAECF1;padding:22px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh">
+      <div style="display:flex;align-items:center;gap:11px;padding:4px 8px 20px">
+        <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(150deg,#FFA24D,#FF6A00);box-shadow:0 8px 18px -8px rgba(255,106,0,.7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;letter-spacing:-.03em">CMS</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;letter-spacing:-.02em">{{ t.appName }}</div>
+          <div style="font-size:11px;color:#9AA0AC">{{ roleLabel }}</div>
+        </div>
+      </div>
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:11px;border:none;border-radius:12px;padding:11px 12px;cursor:pointer;text-align:left;transition:all .16s;background:{{ n.bg }};color:{{ n.fg }};font-weight:{{ n.fw }};font-size:14px" style-hover="background:#F5F6F8">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.d }}"></path></svg>
+          <span>{{ n.label }}</span>
+          <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}">
+            <span style="margin-left:auto;background:#FF3B30;color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px">{{ n.badge }}</span>
+          </sc-if>
+        </button>
+      </sc-for>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid #F0F1F4">
+        <button onClick="{{ toggleLang }}" style="display:flex;align-items:center;gap:9px;border:1px solid #E7E9EE;background:#FAFBFC;border-radius:11px;padding:9px 11px;font-size:12.5px;font-weight:600;color:#5A616E;cursor:pointer;transition:all .16s" style-hover="border-color:#FFB37A;color:#FF6A00">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"></path></svg>
+          {{ langLabel }}
+        </button>
+      </div>
+    </aside>
+  </sc-if>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <sc-if value="{{ showMobileHeader }}" hint-placeholder-val="{{ true }}">
+      <header style="position:sticky;top:0;z-index:30;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(16px);border-bottom:1px solid rgba(16,20,28,.07);padding:0 14px;height:54px;display:flex;align-items:center;gap:10px">
+        <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ goBack }}" style="width:34px;height:34px;flex:none;border:1px solid #E7E9EE;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#12151C" style-hover="border-color:#FFB37A;color:#FF6A00">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5-7 7 7 7"></path></svg>
+          </button>
+        </sc-if>
+        <div style="font-size:16px;font-weight:800;letter-spacing:-.02em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ screenTitle }}</div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <button onClick="{{ toggleLang }}" style="border:1px solid #E7E9EE;background:#fff;border-radius:10px;padding:6px 10px;font-size:11.5px;font-weight:700;color:#5A616E;cursor:pointer" style-hover="border-color:#FFB37A;color:#FF6A00">{{ langShort }}</button>
+          <button onClick="{{ goMe }}" style="width:34px;height:34px;border:none;border-radius:11px;background:{{ meAvatar }};color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px -6px rgba(16,20,28,.5)">{{ meInitial }}</button>
+        </div>
+      </header>
+    </sc-if>
+
+    <main style="flex:1;width:100%;max-width:{{ contentMax }};margin:0 auto;padding:{{ contentPad }}">
+
+      <!-- ============ HOME (customer) ============ -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px;animation:flyUp .35s cubic-bezier(.2,.8,.2,1) both">
+          <div style="position:relative;overflow:hidden;border-radius:22px;padding:20px;background:linear-gradient(140deg,#FF9A3D 0%,#FF6A00 55%,#EF5000 100%);box-shadow:0 18px 38px -20px rgba(255,106,0,.9)">
+            <div style="position:absolute;right:-40px;top:-60px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.14)"></div>
+            <div style="position:absolute;right:26px;bottom:-70px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.10)"></div>
+            <div style="position:relative;display:flex;align-items:center;gap:13px">
+              <div style="width:50px;height:50px;border-radius:16px;background:{{ meAvatar }};border:2px solid rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:800">{{ meInitial }}</div>
+              <div style="min-width:0">
+                <div style="font-size:19px;font-weight:800;color:#fff;letter-spacing:-.02em">{{ meName }}</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:5px">
+                  <span style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px">{{ meLevelName }}</span>
+                  <span style="color:rgba(255,255,255,.9);font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.04em">ID {{ me.id }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="position:relative;margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.22);border-radius:14px;overflow:hidden">
+              <div style="background:rgba(255,255,255,.14);padding:12px 10px;text-align:center">
+                <div style="font-size:21px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums">{{ myDownCount }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:3px">{{ t.myDownstream }}</div>
+              </div>
+              <div style="background:rgba(255,255,255,.14);padding:12px 10px;text-align:center">
+                <div style="font-size:21px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums">{{ myQuota }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:3px">{{ t.quotaLeft }}</div>
+              </div>
+              <div style="background:rgba(255,255,255,.14);padding:12px 10px;text-align:center">
+                <div style="font-size:21px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums">{{ upgradeNeedText }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:3px">{{ t.toUpgrade }}</div>
+              </div>
+            </div>
+          </div>
+
+          <sc-if value="{{ showUpgradeBar }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px">
+                <span style="font-size:13px;font-weight:700">{{ t.upgradeProgress }}</span>
+                <span style="font-size:12px;color:#8A909E;font-variant-numeric:tabular-nums">{{ upgradeFrac }}</span>
+              </div>
+              <div style="height:8px;border-radius:99px;background:#F0F1F4;overflow:hidden">
+                <div style="height:100%;width:{{ upgradePct }};border-radius:99px;background:linear-gradient(90deg,#FFB347,#FF6A00);transition:width .5s cubic-bezier(.2,.8,.2,1)"></div>
+              </div>
+              <div style="margin-top:10px;font-size:12px;color:#8A909E;line-height:1.5">{{ upgradeHint }}</div>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:{{ twoCol }};gap:12px">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+              <div style="font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px">{{ t.myUpline }}</div>
+              <sc-if value="{{ hasParent }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:11px">
+                  <div style="width:42px;height:42px;flex:none;border-radius:14px;background:{{ parentAvatar }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800">{{ parentInitial }}</div>
+                  <div style="min-width:0">
+                    <div style="font-size:15px;font-weight:700">{{ parentName }}</div>
+                    <div style="font-size:11.5px;color:#8A909E;margin-top:2px;font-variant-numeric:tabular-nums">{{ parentMeta }}</div>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noParent }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:10px;color:#A9AFBB;font-size:13px;padding:6px 0">
+                  <div style="width:42px;height:42px;flex:none;border-radius:14px;border:1.5px dashed #DDE1E8;display:flex;align-items:center;justify-content:center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3C8D2" stroke-width="1.8" stroke-linecap="round"><path d="M12 6v12M6 12h12"></path></svg>
+                  </div>
+                  {{ t.noUpline }}
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(16,20,28,.04);display:flex;flex-direction:column">
+              <div style="font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px">{{ t.quickActions }}</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto">
+                <button onClick="{{ openExpand }}" style="display:flex;align-items:center;gap:9px;border:none;border-radius:13px;padding:12px 14px;background:linear-gradient(180deg,#FF9138,#FF6A00);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px -10px rgba(255,106,0,.9)" style-active="transform:scale(.985)">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                  {{ t.expandCustomer }}
+                </button>
+                <button onClick="{{ goNet }}" style="display:flex;align-items:center;gap:9px;border:1px solid #E7E9EE;border-radius:13px;padding:12px 14px;background:#FAFBFC;color:#12151C;font-size:14px;font-weight:600;cursor:pointer" style-hover="border-color:#FFB37A;color:#FF6A00">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+                  {{ t.viewAll }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px 11px">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">{{ t.recentDown }}</span>
+              <button onClick="{{ goNet }}" style="border:none;background:none;color:#FF6A00;font-size:12.5px;font-weight:700;cursor:pointer;padding:0">{{ t.viewAll }} ›</button>
+            </div>
+            <sc-for list="{{ homeDownstream }}" as="u" hint-placeholder-count="3">
+              <button onClick="{{ u.go }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px;border:none;border-top:1px solid #F2F3F6;background:#fff;cursor:pointer;text-align:left;transition:background .14s" style-hover="background:#FAFBFC">
+                <div style="width:40px;height:40px;flex:none;border-radius:13px;background:{{ u.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800">{{ u.initial }}</div>
+                <div style="min-width:0;flex:1">
+                  <div style="font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.name }}</div>
+                  <div style="font-size:11.5px;color:#8A909E;margin-top:2px;font-variant-numeric:tabular-nums">{{ u.meta }}</div>
+                </div>
+                <span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;background:{{ u.badgeBg }};color:{{ u.badgeFg }}">{{ u.levelName }}</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ homeEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:26px 16px 30px;text-align:center;color:#A9AFBB;font-size:13px;border-top:1px solid #F2F3F6">{{ t.emptyDown }}</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ NETWORK / CUSTOMERS ============ -->
+      <sc-if value="{{ isNet }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px;animation:flyUp .3s cubic-bezier(.2,.8,.2,1) both">
+          <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:4px;background:#EAECF1;border-radius:13px;padding:4px">
+              <button onClick="{{ setViewList }}" style="flex:1;border:none;border-radius:10px;padding:9px 0;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .18s;background:{{ vListBg }};color:{{ vListFg }};box-shadow:{{ vListSh }}">{{ t.listView }}</button>
+              <button onClick="{{ setViewTree }}" style="flex:1;border:none;border-radius:10px;padding:9px 0;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .18s;background:{{ vTreeBg }};color:{{ vTreeFg }};box-shadow:{{ vTreeSh }}">{{ t.treeView }}</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showTree }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:16px;padding:11px 13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+              <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="2">
+                <button onClick="{{ c.go }}" style="border:none;background:{{ c.bg }};color:{{ c.fg }};font-size:12.5px;font-weight:{{ c.fw }};padding:5px 10px;border-radius:9px;cursor:pointer">{{ c.label }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showTreeSelf }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ treeSelfGo }}" style="display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:13px 16px;cursor:pointer;text-align:left;box-shadow:0 1px 2px rgba(16,20,28,.04);transition:border-color .16s" style-hover="border-color:#FFB37A">
+              <div style="width:42px;height:42px;flex:none;border-radius:14px;background:{{ treeSelfAv }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800">{{ treeSelfInitial }}</div>
+              <div style="min-width:0;flex:1">
+                <div style="font-size:14.5px;font-weight:700">{{ treeSelfName }}</div>
+                <div style="font-size:11.5px;color:#8A909E;margin-top:2px;font-variant-numeric:tabular-nums">{{ treeSelfMeta }}</div>
+              </div>
+              <span style="flex:none;font-size:12px;font-weight:700;color:#FF6A00">{{ t.viewProfile }} ›</span>
+            </button>
+          </sc-if>
+
+          <sc-if value="{{ showFilters }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="position:relative">
+                <svg style="position:absolute;left:13px;top:50%;transform:translateY(-50%)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A9AFBB" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                <input value="{{ v.search }}" onChange="{{ h.search }}" placeholder="{{ t.searchPh }}" style="width:100%;border:1px solid #E4E7EC;background:#fff;border-radius:13px;padding:12px 14px 12px 38px;font-size:14px" style-focus="border-color:#FF8A2B" />
+              </div>
+              <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:2px">
+                <sc-for list="{{ levelFilters }}" as="f" hint-placeholder-count="4">
+                  <button onClick="{{ f.go }}" style="flex:none;border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:999px;cursor:pointer;transition:all .16s;white-space:nowrap">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="padding:13px 16px;border-bottom:1px solid #F2F3F6;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">{{ listTitle }}</span>
+              <span style="font-size:11.5px;color:#9AA0AC;font-variant-numeric:tabular-nums">{{ listCount }}</span>
+            </div>
+            <sc-for list="{{ netList }}" as="u" hint-placeholder-count="5">
+              <button onClick="{{ u.go }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:none;border-bottom:1px solid #F5F6F8;background:#fff;cursor:pointer;text-align:left;transition:background .14s" style-hover="background:#FAFBFC">
+                <div style="width:42px;height:42px;flex:none;border-radius:14px;background:{{ u.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800;opacity:{{ u.op }}">{{ u.initial }}</div>
+                <div style="min-width:0;flex:1">
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <span style="font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ u.name }}</span>
+                    <span style="font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:{{ u.badgeBg }};color:{{ u.badgeFg }};flex:none">{{ u.levelName }}</span>
+                  </div>
+                  <div style="font-size:11.5px;color:#8A909E;margin-top:3px;font-variant-numeric:tabular-nums">{{ u.meta }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex:none">
+                  <sc-if value="{{ u.statusText }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:{{ u.statusBg }};color:{{ u.statusFg }}">{{ u.statusText }}</span>
+                  </sc-if>
+                  <sc-if value="{{ u.hasKids }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:11px;color:#A9AFBB;font-variant-numeric:tabular-nums">{{ u.kidCount }}</span>
+                  </sc-if>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3C8D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 5 7 7-7 7"></path></svg>
+                </div>
+              </button>
+            </sc-for>
+            <sc-if value="{{ netEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:34px 16px 40px;text-align:center;color:#A9AFBB;font-size:13px">{{ netEmptyText }}</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CUSTOMER DETAIL ============ -->
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px;animation:flyUp .3s cubic-bezier(.2,.8,.2,1) both">
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:20px;padding:20px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:58px;height:58px;flex:none;border-radius:18px;background:{{ d.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:21px;font-weight:800;box-shadow:0 10px 22px -12px rgba(16,20,28,.6)">{{ d.initial }}</div>
+              <div style="min-width:0">
+                <div style="font-size:19px;font-weight:800;letter-spacing:-.02em">{{ d.name }}</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap">
+                  <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:{{ d.badgeBg }};color:{{ d.badgeFg }}">{{ d.levelName }}</span>
+                  <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:{{ d.statusBg }};color:{{ d.statusFg }}">{{ d.statusText }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div style="background:#FAFBFC;border:1px solid #F0F1F4;border-radius:13px;padding:11px 12px">
+                <div style="font-size:18px;font-weight:800;font-variant-numeric:tabular-nums">{{ d.downCount }}</div>
+                <div style="font-size:10.5px;color:#9AA0AC;margin-top:3px">{{ t.downstream }}</div>
+              </div>
+              <div style="background:#FAFBFC;border:1px solid #F0F1F4;border-radius:13px;padding:11px 12px">
+                <div style="font-size:18px;font-weight:800;font-variant-numeric:tabular-nums">{{ d.quota }}</div>
+                <div style="font-size:10.5px;color:#9AA0AC;margin-top:3px">{{ t.quotaLeft }}</div>
+              </div>
+              <div style="background:#FAFBFC;border:1px solid #F0F1F4;border-radius:13px;padding:11px 12px">
+                <div style="font-size:18px;font-weight:800;font-variant-numeric:tabular-nums">{{ d.days }}</div>
+                <div style="font-size:10.5px;color:#9AA0AC;margin-top:3px">{{ t.daysJoined }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="padding:14px 16px 10px;font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.09em;text-transform:uppercase">{{ t.profileInfo }}</div>
+            <sc-for list="{{ detailRows }}" as="r" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;border-top:1px solid #F5F6F8">
+                <span style="font-size:13px;color:#8A909E;flex:none">{{ r.k }}</span>
+                <span style="font-size:13.5px;font-weight:600;text-align:right;word-break:break-all;font-variant-numeric:tabular-nums;color:{{ r.color }}">{{ r.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+              <div style="font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.09em;text-transform:uppercase;margin-bottom:13px">{{ t.adminActions }}</div>
+              <div style="display:grid;grid-template-columns:{{ twoCol }};gap:9px">
+                <button onClick="{{ openQuota }}" style="border:1px solid #E7E9EE;background:#FAFBFC;border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;cursor:pointer;color:#12151C" style-hover="border-color:#FFB37A;color:#FF6A00">{{ t.adjustQuota }}</button>
+                <button onClick="{{ toggleStatus }}" style="border:1px solid #E7E9EE;background:#FAFBFC;border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;cursor:pointer;color:{{ statusActionColor }}" style-hover="border-color:#FFB37A">{{ statusActionLabel }}</button>
+                <button onClick="{{ deleteUser }}" style="border:1px solid #FFE0DA;background:#FFF6F4;border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;cursor:pointer;color:#C7361B;grid-column:{{ spanAll }}" style-hover="border-color:#FFB3A5">{{ t.softDelete }}</button>
+              </div>
+              <div style="margin-top:11px;font-size:11.5px;color:#A9AFBB;line-height:1.55">{{ t.softDeleteNote }}</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ detailHasKids }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+              <div style="padding:14px 16px 11px;display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:12.5px;font-weight:800">{{ t.itsDownstream }}</span>
+                <span style="font-size:11.5px;color:#9AA0AC;font-variant-numeric:tabular-nums">{{ detailKidCount }}</span>
+              </div>
+              <sc-for list="{{ detailKids }}" as="u" hint-placeholder-count="3">
+                <button onClick="{{ u.go }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px;border:none;border-top:1px solid #F5F6F8;background:#fff;cursor:pointer;text-align:left" style-hover="background:#FAFBFC">
+                  <div style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ u.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800">{{ u.initial }}</div>
+                  <div style="min-width:0;flex:1">
+                    <div style="font-size:14px;font-weight:700">{{ u.name }}</div>
+                    <div style="font-size:11.5px;color:#8A909E;margin-top:2px;font-variant-numeric:tabular-nums">{{ u.meta }}</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3C8D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 5 7 7-7 7"></path></svg>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ STATS (admin) ============ -->
+      <sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px;animation:flyUp .35s cubic-bezier(.2,.8,.2,1) both">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:11px">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:15px 16px;box-shadow:0 1px 2px rgba(16,20,28,.04);position:relative;overflow:hidden">
+                <div style="position:absolute;right:-18px;top:-18px;width:70px;height:70px;border-radius:50%;background:{{ k.glow }}"></div>
+                <div style="position:relative;font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.06em;text-transform:uppercase">{{ k.label }}</div>
+                <div style="position:relative;font-size:28px;font-weight:800;margin-top:9px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:{{ k.color }}">{{ k.value }}</div>
+                <div style="position:relative;font-size:11.5px;color:#8A909E;margin-top:4px">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:20px;padding:18px 16px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">{{ t.newUsers7 }}</span>
+              <span style="font-size:11.5px;color:#9AA0AC;font-variant-numeric:tabular-nums">{{ chartTotal }}</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:{{ chartGap }};height:132px">
+              <sc-for list="{{ chart }}" as="c" hint-placeholder-count="7">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0">
+                  <div style="font-size:11px;font-weight:700;color:#5A616E;font-variant-numeric:tabular-nums">{{ c.n }}</div>
+                  <div style="width:100%;height:{{ c.h }};border-radius:8px 8px 4px 4px;background:{{ c.bg }};transition:height .6s cubic-bezier(.2,.8,.2,1)"></div>
+                  <div style="font-size:10.5px;color:#A9AFBB;font-variant-numeric:tabular-nums;white-space:nowrap">{{ c.d }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:20px;padding:18px 16px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="font-size:13.5px;font-weight:800;letter-spacing:-.01em;margin-bottom:16px">{{ t.levelDist }}</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ dist }}" as="l" hint-placeholder-count="3">
+                <div>
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px">
+                    <span style="font-size:13px;font-weight:600">{{ l.label }}</span>
+                    <span style="font-size:12px;color:#8A909E;font-variant-numeric:tabular-nums">{{ l.text }}</span>
+                  </div>
+                  <div style="height:9px;border-radius:99px;background:#F2F3F6;overflow:hidden">
+                    <div style="height:100%;width:{{ l.pct }};border-radius:99px;background:{{ l.bg }};transition:width .6s cubic-bezier(.2,.8,.2,1)"></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="padding:15px 16px 11px;font-size:13px;font-weight:800">{{ t.recentReg }}</div>
+            <sc-for list="{{ recentUsers }}" as="u" hint-placeholder-count="4">
+              <button onClick="{{ u.go }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 16px;border:none;border-top:1px solid #F5F6F8;background:#fff;cursor:pointer;text-align:left" style-hover="background:#FAFBFC">
+                <div style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ u.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800">{{ u.initial }}</div>
+                <div style="min-width:0;flex:1">
+                  <div style="font-size:14px;font-weight:700">{{ u.name }}</div>
+                  <div style="font-size:11.5px;color:#8A909E;margin-top:2px;font-variant-numeric:tabular-nums">{{ u.meta }}</div>
+                </div>
+                <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:{{ u.badgeBg }};color:{{ u.badgeFg }}">{{ u.levelName }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CHAT LIST ============ -->
+      <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px;animation:flyUp .3s cubic-bezier(.2,.8,.2,1) both">
+          <div style="display:flex;gap:4px;background:#EAECF1;border-radius:13px;padding:4px">
+            <button onClick="{{ setChatFriends }}" style="flex:1;border:none;border-radius:10px;padding:9px 0;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .18s;background:{{ cFriBg }};color:{{ cFriFg }};box-shadow:{{ cFriSh }}">{{ t.friends }}</button>
+            <button onClick="{{ setChatGroups }}" style="flex:1;border:none;border-radius:10px;padding:9px 0;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .18s;background:{{ cGrpBg }};color:{{ cGrpFg }};box-shadow:{{ cGrpSh }}">{{ t.groups }}</button>
+          </div>
+
+          <button onClick="{{ openChatAction }}" style="display:flex;align-items:center;justify-content:center;gap:9px;border:1.5px dashed #DDE1E8;background:#fff;border-radius:15px;padding:14px;font-size:13.5px;font-weight:700;color:#FF6A00;cursor:pointer;transition:all .16s" style-hover="border-color:#FFB37A;background:#FFF8F2">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            {{ chatActionLabel }}
+          </button>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <sc-for list="{{ threads }}" as="c" hint-placeholder-count="4">
+              <button onClick="{{ c.go }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;border:none;border-bottom:1px solid #F5F6F8;background:#fff;cursor:pointer;text-align:left" style-hover="background:#FAFBFC">
+                <div style="width:44px;height:44px;flex:none;border-radius:15px;background:{{ c.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800">{{ c.initial }}</div>
+                <div style="min-width:0;flex:1">
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <span style="font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.name }}</span>
+                    <sc-if value="{{ c.tag }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#F2F3F6;color:#6B7280;flex:none">{{ c.tag }}</span>
+                    </sc-if>
+                  </div>
+                  <div style="font-size:12px;color:#8A909E;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.last }}</div>
+                </div>
+                <span style="font-size:10.5px;color:#B4B9C4;flex:none;font-variant-numeric:tabular-nums">{{ c.time }}</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ threadsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:34px 16px 40px;text-align:center;color:#A9AFBB;font-size:13px">{{ chatEmptyText }}</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ THREAD ============ -->
+      <sc-if value="{{ isThread }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;height:{{ threadHeight }};animation:fadeIn .25s both">
+          <sc-if value="{{ threadIsGroup }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:16px;padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;gap:10px;flex:none">
+              <div style="font-size:12px;color:#8A909E;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ groupMembersText }}</div>
+              <sc-if value="{{ isGroupOwner }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ toggleMute }}" style="flex:none;border:1px solid {{ muteBd }};background:{{ muteBg }};color:{{ muteFg }};font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:999px;cursor:pointer">{{ muteLabel }}</button>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <div ref="{{ msgRef }}" style="flex:1;overflow-y:auto;background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <sc-for list="{{ messages }}" as="m" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;align-items:{{ m.align }};gap:4px">
+                <sc-if value="{{ m.who }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:11px;color:#A9AFBB;padding:0 4px">{{ m.who }}</span>
+                </sc-if>
+                <div style="max-width:78%;padding:10px 13px;border-radius:{{ m.radius }};font-size:14px;line-height:1.55;background:{{ m.bg }};color:{{ m.fg }};border:1px solid {{ m.bd }};word-break:break-word;white-space:pre-wrap">{{ m.text }}</div>
+                <span style="font-size:10px;color:#C3C8D2;padding:0 4px;font-variant-numeric:tabular-nums">{{ m.time }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ msgsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="margin:auto;text-align:center;color:#C3C8D2;font-size:13px">{{ t.sayHi }}</div>
+            </sc-if>
+          </div>
+
+          <div style="flex:none;margin-top:11px;display:flex;gap:9px;align-items:flex-end">
+            <input value="{{ v.msg }}" onChange="{{ h.msg }}" onKeyDown="{{ msgKey }}" disabled="{{ inputDisabled }}" placeholder="{{ inputPh }}" style="flex:1;border:1px solid #E4E7EC;background:{{ inputBg }};border-radius:14px;padding:13px 15px;font-size:14.5px" style-focus="border-color:#FF8A2B" />
+            <button onClick="{{ sendMsg }}" disabled="{{ inputDisabled }}" style="flex:none;width:48px;height:48px;border:none;border-radius:14px;background:{{ sendBg }};color:#fff;display:flex;align-items:center;justify-content:center;cursor:{{ sendCursor }};box-shadow:0 8px 18px -10px rgba(255,106,0,.9)">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12 20 4.5 15 20l-3.5-6.5L4.5 12Z"></path></svg>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CONFIG (admin) ============ -->
+      <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px;animation:flyUp .3s cubic-bezier(.2,.8,.2,1) both">
+          <div style="background:linear-gradient(140deg,#2A2F3A,#171A21);border-radius:20px;padding:20px;color:#fff;box-shadow:0 18px 38px -22px rgba(16,20,28,.9)">
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.09em;text-transform:uppercase">{{ t.deployConfig }}</div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-top:11px">
+              <span style="font-size:38px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums">{{ cfgLevels }}</span>
+              <span style="font-size:14px;font-weight:600;color:rgba(255,255,255,.8)">{{ t.levelsSupported }}</span>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:7px">
+              <sc-for list="{{ levelChips }}" as="c" hint-placeholder-count="3">
+                <div style="flex:1;border-radius:12px;padding:10px 8px;text-align:center;background:{{ c.bg }};border:1px solid {{ c.bd }}">
+                  <div style="font-size:13px;font-weight:800;color:{{ c.fg }}">{{ c.label }}</div>
+                  <div style="font-size:10.5px;color:{{ c.sub }};margin-top:3px">{{ c.note }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:15px;padding:11px 13px;border-radius:12px;background:rgba(255,106,0,.16);border:1px solid rgba(255,138,43,.35);font-size:12px;line-height:1.6;color:#FFD3AE">{{ t.cfgLock }}</div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="padding:15px 16px 11px;font-size:13px;font-weight:800">{{ t.quotaConfig }}</div>
+            <sc-for list="{{ quotaRows }}" as="q" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-top:1px solid #F5F6F8">
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:700">{{ q.label }}</div>
+                  <div style="font-size:11.5px;color:#8A909E;margin-top:2px">{{ q.note }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:9px;flex:none">
+                  <button onClick="{{ q.dec }}" style="width:32px;height:32px;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;color:#5A616E;line-height:1" style-hover="border-color:#FFB37A;color:#FF6A00">−</button>
+                  <span style="min-width:30px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums">{{ q.value }}</span>
+                  <button onClick="{{ q.inc }}" style="width:32px;height:32px;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;color:#5A616E;line-height:1" style-hover="border-color:#FFB37A;color:#FF6A00">+</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <div style="padding:15px 16px 11px;font-size:13px;font-weight:800">{{ t.upgradeConfig }}</div>
+            <sc-for list="{{ upRows }}" as="q" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-top:1px solid #F5F6F8">
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:700">{{ q.label }}</div>
+                  <div style="font-size:11.5px;color:#8A909E;margin-top:2px">{{ q.note }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:9px;flex:none">
+                  <button onClick="{{ q.dec }}" style="width:32px;height:32px;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;color:#5A616E;line-height:1" style-hover="border-color:#FFB37A;color:#FF6A00">−</button>
+                  <span style="min-width:30px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums">{{ q.value }}</span>
+                  <button onClick="{{ q.inc }}" style="width:32px;height:32px;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:10px;cursor:pointer;font-size:17px;font-weight:700;color:#5A616E;line-height:1" style-hover="border-color:#FFB37A;color:#FF6A00">+</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ ME ============ -->
+      <sc-if value="{{ isMe }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px;animation:flyUp .3s cubic-bezier(.2,.8,.2,1) both">
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:20px;padding:20px;box-shadow:0 1px 2px rgba(16,20,28,.04);display:flex;align-items:center;gap:15px">
+            <button onClick="{{ openAvatar }}" style="position:relative;width:64px;height:64px;flex:none;border:none;padding:0;border-radius:20px;background:{{ meAvatar }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;font-weight:800;cursor:pointer;box-shadow:0 12px 24px -12px rgba(16,20,28,.6)">
+              {{ meInitial }}
+              <span style="position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:9px;background:#fff;border:1px solid #E7E9EE;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px -3px rgba(16,20,28,.4)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5A616E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path></svg>
+              </span>
+            </button>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:19px;font-weight:800;letter-spacing:-.02em">{{ meName }}</div>
+              <div style="display:flex;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap">
+                <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:{{ meBadgeBg }};color:{{ meBadgeFg }}">{{ meLevelName }}</span>
+                <span style="font-size:11.5px;color:#8A909E;font-variant-numeric:tabular-nums">ID {{ me.id }}</span>
+              </div>
+            </div>
+          </div>
+
+          <sc-if value="{{ showProfileCard }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;padding:17px;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <span style="font-size:13px;font-weight:800">{{ t.myProfile }}</span>
+                <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:{{ profBadgeBg }};color:{{ profBadgeFg }}">{{ profBadgeText }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <label style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:11.5px;font-weight:600;color:#6B7280">{{ t.realName }}</span>
+                  <input value="{{ v.name }}" onChange="{{ h.name }}" placeholder="{{ t.realNamePh }}" style="border:1px solid #E4E7EC;background:#FAFBFC;border-radius:12px;padding:12px 13px;font-size:14.5px" style-focus="border-color:#FF8A2B;background:#fff" />
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:11.5px;font-weight:600;color:#6B7280">{{ t.idCard }}</span>
+                  <input value="{{ v.idcard }}" onChange="{{ h.idcard }}" placeholder="{{ t.idCardPh }}" style="border:1px solid #E4E7EC;background:#FAFBFC;border-radius:12px;padding:12px 13px;font-size:14.5px;font-variant-numeric:tabular-nums" style-focus="border-color:#FF8A2B;background:#fff" />
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:11.5px;font-weight:600;color:#6B7280">{{ t.phone }}</span>
+                  <input value="{{ v.phone }}" onChange="{{ h.phone }}" placeholder="{{ t.phonePh }}" style="border:1px solid #E4E7EC;background:#FAFBFC;border-radius:12px;padding:12px 13px;font-size:14.5px;font-variant-numeric:tabular-nums" style-focus="border-color:#FF8A2B;background:#fff" />
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:11.5px;font-weight:600;color:#6B7280">{{ t.address }}</span>
+                  <input value="{{ v.address }}" onChange="{{ h.address }}" placeholder="{{ t.addressPh }}" style="border:1px solid #E4E7EC;background:#FAFBFC;border-radius:12px;padding:12px 13px;font-size:14.5px" style-focus="border-color:#FF8A2B;background:#fff" />
+                </label>
+                <button onClick="{{ saveProfile }}" style="margin-top:3px;border:none;border-radius:13px;padding:13px 0;background:linear-gradient(180deg,#FF9138,#FF6A00);color:#fff;font-size:14.5px;font-weight:800;cursor:pointer;box-shadow:0 9px 20px -10px rgba(255,106,0,.9)" style-active="transform:scale(.99)">{{ t.save }}</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="background:#fff;border:1px solid #EBEDF2;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(16,20,28,.04)">
+            <button onClick="{{ toggleLang }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:15px 16px;border:none;background:#fff;cursor:pointer;text-align:left" style-hover="background:#FAFBFC">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#5A616E" stroke-width="1.7"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"></path></svg>
+              <span style="font-size:14.5px;font-weight:600;flex:1">{{ t.language }}</span>
+              <span style="font-size:13px;color:#8A909E">{{ langCurrent }}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3C8D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 5 7 7-7 7"></path></svg>
+            </button>
+            <button onClick="{{ logout }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:15px 16px;border:none;border-top:1px solid #F5F6F8;background:#fff;cursor:pointer;text-align:left;color:#C7361B" style-hover="background:#FFF8F6">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2M18 12H9m9 0-3-3m3 3-3 3"></path></svg>
+              <span style="font-size:14.5px;font-weight:700;flex:1">{{ t.logout }}</span>
+            </button>
+          </div>
+
+          <div style="text-align:center;font-size:11px;color:#B4B9C4;padding:6px 0 4px;letter-spacing:.04em">{{ t.appName }} · v1.0 · {{ roleLabel }}</div>
+        </div>
+      </sc-if>
+
+    </main>
+
+    <sc-if value="{{ showTabbar }}" hint-placeholder-val="{{ true }}">
+      <nav style="position:sticky;bottom:0;z-index:30;background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(16px);border-top:1px solid rgba(16,20,28,.07);display:flex;padding:7px 6px calc(7px + env(safe-area-inset-bottom))">
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+          <button onClick="{{ n.go }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:none;padding:5px 2px;cursor:pointer;color:{{ n.fg }};position:relative;transition:color .16s">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ n.sw }}" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.d }}"></path></svg>
+            <span style="font-size:10.5px;font-weight:{{ n.fw }};letter-spacing:.01em">{{ n.label }}</span>
+            <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:0;right:22%;background:#FF3B30;color:#fff;font-size:9.5px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ n.badge }}</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </nav>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ MODAL ============ -->
+<sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:{{ modalAlign }};justify-content:center;background:rgba(16,20,28,.42);backdrop-filter:blur(3px);animation:fadeIn .2s both;padding:{{ modalPad }}" onClick="{{ closeModal }}">
+    <div onClick="{{ stop }}" style="width:100%;max-width:420px;background:#fff;border-radius:{{ modalRadius }};padding:22px 20px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -8px 60px -20px rgba(16,20,28,.5);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;max-height:88vh;overflow-y:auto">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:6px">
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.02em">{{ modalTitle }}</div>
+        <button onClick="{{ closeModal }}" style="width:30px;height:30px;flex:none;border:none;background:#F3F4F7;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6B7280" style-hover="background:#E9EBF0">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
+      </div>
+      <div style="font-size:13px;color:#8A909E;line-height:1.6;margin-bottom:16px">{{ modalDesc }}</div>
+
+      <sc-if value="{{ modalHasInput }}" hint-placeholder-val="{{ false }}">
+        <input value="{{ modalValue }}" onChange="{{ modalInput }}" placeholder="{{ modalPh }}" style="width:100%;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:13px;padding:14px 15px;font-size:15.5px;font-variant-numeric:tabular-nums;letter-spacing:.03em" style-focus="border-color:#FF8A2B;background:#fff" />
+      </sc-if>
+
+      <sc-if value="{{ friendHasCandidates }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:9px">
+          <span style="font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.09em;text-transform:uppercase">{{ t.allUsers }}</span>
+          <span style="font-size:11.5px;color:#FF6A00;font-weight:700">{{ pickedText }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto">
+          <sc-for list="{{ friendCandidates }}" as="f" hint-placeholder-count="5">
+            <button onClick="{{ f.go }}" style="display:flex;align-items:center;gap:11px;border:1px solid {{ f.bd }};background:{{ f.bg }};border-radius:13px;padding:10px 12px;cursor:pointer;text-align:left;transition:all .14s">
+              <div style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ f.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13.5px;font-weight:800">{{ f.initial }}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:700">{{ f.name }}</div>
+                <div style="font-size:11px;color:#8A909E;font-variant-numeric:tabular-nums;margin-top:2px">{{ f.sub }}</div>
+              </div>
+              <div style="width:21px;height:21px;flex:none;border-radius:7px;border:1.5px solid {{ f.boxBd }};background:{{ f.boxBg }};display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="{{ f.tickOp }}"><path d="m5 12.5 4.5 4.5L19 7"></path></svg>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ friendNoCandidates }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;border:1.5px dashed #E2E5EB;border-radius:15px;padding:24px 16px;text-align:center;background:#FAFBFC;font-size:13px;color:#A9AFBB">{{ t.noCandidates }}</div>
+      </sc-if>
+
+      <sc-if value="{{ friendIdle }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;border:1.5px dashed #E2E5EB;border-radius:15px;padding:24px 16px;text-align:center;background:#FAFBFC;font-size:13px;color:#A9AFBB;line-height:1.6">{{ t.friendIdleTip }}</div>
+      </sc-if>
+
+      <sc-if value="{{ modalIsAvatar }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px">
+          <sc-for list="{{ avatarOptions }}" as="a" hint-placeholder-count="8">
+            <button onClick="{{ a.go }}" style="aspect-ratio:1;border:{{ a.bd }};border-radius:17px;background:{{ a.bg }};color:#fff;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .14s" style-hover="transform:scale(1.06)">{{ meInitial }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ groupNoFriends }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;border:1.5px dashed #E2E5EB;border-radius:15px;padding:20px 16px;text-align:center;background:#FAFBFC">
+          <div style="font-size:13px;color:#8A909E;line-height:1.6">{{ t.groupNoFriend }}</div>
+          <button onClick="{{ goAddFriendFromGroup }}" style="margin-top:14px;border:1px solid #FFB37A;background:#FFF8F2;color:#FF6A00;border-radius:12px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer" style-hover="background:#FFF0E2">{{ t.goAddFriend }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ groupHasFriends }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:9px">
+          <span style="font-size:11px;font-weight:700;color:#9AA0AC;letter-spacing:.09em;text-transform:uppercase">{{ t.friends }}</span>
+          <span style="font-size:11.5px;color:#FF6A00;font-weight:700">{{ pickedText }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-height:270px;overflow-y:auto">
+          <sc-for list="{{ friendPicks }}" as="f" hint-placeholder-count="3">
+            <button onClick="{{ f.go }}" style="display:flex;align-items:center;gap:11px;border:1px solid {{ f.bd }};background:{{ f.bg }};border-radius:13px;padding:10px 12px;cursor:pointer;text-align:left">
+              <div style="width:36px;height:36px;flex:none;border-radius:12px;background:{{ f.av }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800">{{ f.initial }}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:700">{{ f.name }}</div>
+                <div style="font-size:11px;color:#8A909E;font-variant-numeric:tabular-nums;margin-top:1px">{{ f.id }}</div>
+              </div>
+              <div style="width:21px;height:21px;flex:none;border-radius:7px;border:1.5px solid {{ f.boxBd }};background:{{ f.boxBg }};display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="{{ f.tickOp }}"><path d="m5 12.5 4.5 4.5L19 7"></path></svg>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ modalError }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;background:#FFF2F0;border:1px solid #FFD9D2;color:#C7361B;font-size:13px;padding:10px 12px;border-radius:11px">{{ modalError }}</div>
+      </sc-if>
+
+      <div style="display:flex;gap:9px;margin-top:20px">
+        <button onClick="{{ closeModal }}" style="flex:1;border:1px solid #E4E7EC;background:#FAFBFC;border-radius:13px;padding:13px 0;font-size:14.5px;font-weight:700;color:#5A616E;cursor:pointer" style-hover="border-color:#C3C8D2">{{ modalCancel }}</button>
+        <button onClick="{{ modalConfirm }}" style="flex:1.4;border:none;border-radius:13px;padding:13px 0;font-size:14.5px;font-weight:800;color:#fff;cursor:pointer;background:{{ modalOkBg }};box-shadow:0 9px 20px -10px rgba(255,106,0,.9)" style-active="transform:scale(.99)">{{ modalOk }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:200;background:rgba(18,21,28,.94);color:#fff;font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:14px;box-shadow:0 18px 40px -16px rgba(16,20,28,.8);animation:sheetUp .25s cubic-bezier(.2,.8,.2,1) both;max-width:82vw;text-align:center">{{ toast }}</div>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;systemMaxLevel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;1&quot;,&quot;2&quot;,&quot;3&quot;],&quot;default&quot;:&quot;3&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;部署配置&quot;,&quot;label&quot;:&quot;支持的客户级别数&quot;},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;zh&quot;,&quot;en&quot;],&quot;default&quot;:&quot;zh&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;部署配置&quot;,&quot;label&quot;:&quot;默认语言&quot;}}">
+const PAL = [
+  'linear-gradient(140deg,#FFB05C,#FF6A00)',
+  'linear-gradient(140deg,#7BA7FF,#2B5FD9)',
+  'linear-gradient(140deg,#6FD6C0,#0E9F85)',
+  'linear-gradient(140deg,#FF9AA8,#E8456B)',
+  'linear-gradient(140deg,#B79BFF,#6C43E0)',
+  'linear-gradient(140deg,#FFD166,#DFA100)',
+  'linear-gradient(140deg,#8FA0B8,#43506B)',
+  'linear-gradient(140deg,#5EC6FF,#0B7FD1)'
+];
+const ICON = {
+  home: 'M4 11.2 12 4.2l8 7V19a1.2 1.2 0 0 1-1.2 1.2h-3.6v-6H8.8v6H5.2A1.2 1.2 0 0 1 4 19z',
+  net: 'M9 11.2a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8ZM2.6 20.2c0-3.2 2.9-5.4 6.4-5.4s6.4 2.2 6.4 5.4M17 12.4a3 3 0 1 0 0-6M18.6 20.2c0-2-.7-3.6-1.9-4.7',
+  chat: 'M20 12.4c0 3.5-3.6 6.4-8 6.4-.9 0-1.8-.1-2.6-.4L5 20.2l1.2-3.1C4.8 15.9 4 14.3 4 12.4 4 8.9 7.6 6 12 6s8 2.9 8 6.4Z',
+  stats: 'M5 20V10.5M12 20V4.5M19 20v-6.5',
+  me: 'M12 12.2a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.4 20.4c0-3.6 3.4-6 7.6-6s7.6 2.4 7.6 6',
+  cfg: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8-3a8 8 0 0 0-.2-1.7l2-1.5-2-3.4-2.3 1a8 8 0 0 0-3-1.7L14.2 2H9.8l-.3 2.7a8 8 0 0 0-3 1.7l-2.3-1-2 3.4 2 1.5a8 8 0 0 0 0 3.4l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 3 1.7l.3 2.7h4.4l.3-2.7a8 8 0 0 0 3-1.7l2.3 1 2-3.4-2-1.5c.1-.5.2-1.1.2-1.7Z'
+};
+const T = {
+  zh: {
+    appName: '客户管理系统', tagline: 'CUSTOMER MANAGEMENT SYSTEM',
+    login: '登录', register: '注册', username: '用户名', regPh: '用手机号注册', loginPh: '手机号或用户名',
+    password: '密码', passwordPh: '请输入密码', confirmPw: '确认密码', confirmPwPh: '请再次输入密码',
+    loginBtn: '登 录', registerBtn: '注 册', demoTip: '演示账号', demoAdmin: '超级管理员', demoUser: '一级客户',
+    errEmpty: '请填写用户名和密码', errNoUser: '用户名不存在', errPwd: '密码不正确', errDisabled: '账号已被禁用，请联系管理员',
+    errExists: '该用户名已被注册', errMismatch: '两次输入的密码不一致', errShort: '密码至少 6 位',
+    home: '首页', net: '客户', chat: '消息', stats: '报表', me: '我的', config: '配置',
+    admin: '超级管理员', customer: '客户',
+    myDownstream: '下游客户', quotaLeft: '剩余指标', toUpgrade: '距升级', downstream: '下游客户', daysJoined: '加入天数',
+    upgradeProgress: '升级进度', upgradeHint2: '再拓展 {n} 位客户即可升级为 {l}', maxLevel: '已是最高级别',
+    myUpline: '我的上级', noUpline: '暂无上级客户', quickActions: '快捷操作', expandCustomer: '拓展客户',
+    viewAll: '查看全部', recentDown: '最近拓展', emptyDown: '还没有下游客户，去拓展一位吧',
+    listView: '列表', treeView: '树形', searchPh: '搜索姓名 / ID / 用户名', allLevels: '全部',
+    allCustomers: '全部客户', myCustomers: '我的下游客户', emptyList: '没有符合条件的客户', root: '全部客户',
+    emptyLeaf: '该客户名下暂无下游客户', viewProfile: '查看该客户完整资料',
+    profileInfo: '客户资料', adminActions: '管理操作', adjustQuota: '调整指标', disable: '禁用账号', activate: '激活账号',
+    softDelete: '删除客户（伪删除）', softDeleteNote: '删除仅作标记隐藏，数据保留在数据库中，可随时恢复。',
+    itsDownstream: '其下游客户', level: '级别', status: '状态', active: '正常', disabled: '已禁用', deleted: '已删除',
+    userId: '系统 ID', account: '登录账号', realName: '姓名', idCard: '身份证号', phone: '电话号码', address: '家庭住址',
+    joinedAt: '注册时间', upline: '上级客户', quotaTotal: '指标（剩余/总）', notFilled: '未填写',
+    totalUsers: '总客户数', todayNew: '今日新增', weekNew: '本周新增', disabledCount: '停用账号',
+    allTime: '全系统累计', vsYesterday: '较昨日', last7: '近 7 天', needAttention: '需关注',
+    newUsers7: '近 7 天新增客户', levelDist: '级别分布', recentReg: '最新注册',
+    friends: '好友', groups: '群组', addFriend: '添加好友', createGroup: '创建群组',
+    emptyFriends: '还没有好友，通过 ID 添加一位吧', emptyGroups: '还没有群组，选择好友创建一个吧',
+    sayHi: '还没有消息，打个招呼吧', msgPh: '输入消息…', mutedPh: '群主已开启全员禁言',
+    muteOn: '已禁言', muteOff: '可发言', members: '{n} 位成员', owner: '群主',
+    deployConfig: '系统部署配置', levelsSupported: '级客户体系', quotaConfig: '各级默认拓展指标',
+    upgradeConfig: '升级门槛', cfgLock: '级别数由部署配置文件写死，管理员无法修改。代码层硬性限制最多 3 级，绝不允许配置为 4 级及以上。',
+    l1note: '最高级', l2note: '中间级', l3note: '普通客户', quotaNote: '可拓展下游客户数量',
+    upNote: '拓展满 {n} 位可升为 {l}',
+    myProfile: '我的资料', save: '保存资料', complete: '已完善', incomplete: '待完善',
+    language: '语言 / Language', logout: '退出登录',
+    nagTitle: '完善个人信息', nagDesc: '请先完善姓名、身份证号、电话号码和家庭住址，以便享受完整服务。未完善前每次登录都会提示。',
+    nagOk: '立即完善', nagLater: '暂不填写',
+    expandTitle: '拓展客户', expandDesc: '输入对方的 11 位系统 ID，将其挂靠到你的名下。对方需尚未有上级客户。',
+    expandPh: '11 位系统 ID', expandOk: '确认拓展',
+    errSelf: '不能拓展自己', errNotFound: '未找到该 ID 对应的客户', errHasParent: '该客户已有上级，不能重复挂靠',
+    errNoQuota: '你的可拓展指标已用完，请联系管理员提高', errLevel: '该客户级别不符合挂靠要求',
+    okExpand: '拓展成功，{n} 已成为你的下游客户', okUpgrade: '恭喜！你已升级为{l}',
+    friendTitle: '添加好友', friendDesc: '输入对方的 11 位系统 ID 进行搜索，搜到后勾选即可添加为好友。',
+    friendPh: '输入 11 位系统 ID', friendOk: '添加好友',
+    errPickFriend: '请至少选择一位用户', allUsers: '搜索结果', noCandidates: '未找到该 ID 对应的用户',
+    friendIdleTip: '请输入对方的 11 位系统 ID 进行搜索',
+    errFriendSelf: '不能添加自己为好友', errFriendExists: '你们已经是好友了', okFriend: '已添加好友 {n}',
+    groupTitle: '创建群组', groupDesc: '输入群名称，并从好友列表中选择成员。只有群主可以添加或移除成员。',
+    groupPh: '群名称', groupOk: '创建群组', errGroupName: '请输入群名称', errGroupMember: '请至少选择一位好友',
+    okGroup: '群组「{n}」创建成功',
+    groupNoFriend: '你还没有好友，先通过 11 位系统 ID 添加一位好友，再来创建群组。', goAddFriend: '去添加好友',
+    pickedN: '已选择 {n} 位好友',
+    quotaTitle: '调整拓展指标', quotaDesc: '为该客户临时提高可拓展的下游客户数量。', quotaPh: '新的剩余指标',
+    quotaOk: '确认调整', okQuota: '指标已更新为 {n}',
+    delTitle: '删除该客户？', delDesc: '这是伪删除：客户将从列表中隐藏，数据完整保留，可随时恢复。',
+    delOk: '确认删除', okDel: '已删除客户 {n}', okStatus: '状态已更新',
+    avatarTitle: '选择头像', avatarDesc: '选一个你喜欢的颜色作为头像。',
+    cancel: '取消', confirm: '确定', okSave: '资料已保存', copy: '已复制',
+    lv: ['', '一级客户', '二级客户', '三级客户'], adminName: '超级管理员'
+  },
+  en: {
+    appName: 'Customer Management', tagline: 'CUSTOMER MANAGEMENT SYSTEM',
+    login: 'Sign in', register: 'Sign up', username: 'Username', regPh: 'Register with phone number', loginPh: 'Phone or username',
+    password: 'Password', passwordPh: 'Enter your password', confirmPw: 'Confirm password', confirmPwPh: 'Re-enter your password',
+    loginBtn: 'SIGN IN', registerBtn: 'SIGN UP', demoTip: 'Demo accounts', demoAdmin: 'Super admin', demoUser: 'Tier-1 customer',
+    errEmpty: 'Please enter username and password', errNoUser: 'Username not found', errPwd: 'Incorrect password',
+    errDisabled: 'Account disabled — contact the administrator',
+    errExists: 'This username is already taken', errMismatch: 'Passwords do not match', errShort: 'Password must be 6+ characters',
+    home: 'Home', net: 'Customers', chat: 'Messages', stats: 'Reports', me: 'Me', config: 'Config',
+    admin: 'Super admin', customer: 'Customer',
+    myDownstream: 'Downstream', quotaLeft: 'Quota left', toUpgrade: 'To upgrade', downstream: 'Downstream', daysJoined: 'Days joined',
+    upgradeProgress: 'Upgrade progress', upgradeHint2: 'Add {n} more customers to reach {l}', maxLevel: 'Highest tier reached',
+    myUpline: 'My upline', noUpline: 'No upline customer', quickActions: 'Quick actions', expandCustomer: 'Add customer',
+    viewAll: 'View all', recentDown: 'Recently added', emptyDown: 'No downstream customers yet',
+    listView: 'List', treeView: 'Tree', searchPh: 'Search name / ID / username', allLevels: 'All',
+    allCustomers: 'All customers', myCustomers: 'My downstream', emptyList: 'No matching customers', root: 'All customers',
+    emptyLeaf: 'This customer has no downstream yet', viewProfile: 'View full customer profile',
+    profileInfo: 'Customer profile', adminActions: 'Admin actions', adjustQuota: 'Adjust quota', disable: 'Disable', activate: 'Activate',
+    softDelete: 'Delete (soft)', softDeleteNote: 'Soft delete only hides the record; data is retained and can be restored.',
+    itsDownstream: 'Its downstream', level: 'Tier', status: 'Status', active: 'Active', disabled: 'Disabled', deleted: 'Deleted',
+    userId: 'System ID', account: 'Account', realName: 'Full name', idCard: 'ID card no.', phone: 'Phone', address: 'Home address',
+    joinedAt: 'Joined', upline: 'Upline', quotaTotal: 'Quota (left/total)', notFilled: 'Not filled',
+    totalUsers: 'Total customers', todayNew: 'New today', weekNew: 'New this week', disabledCount: 'Disabled',
+    allTime: 'All time', vsYesterday: 'vs yesterday', last7: 'Last 7 days', needAttention: 'Needs attention',
+    newUsers7: 'New customers · last 7 days', levelDist: 'Tier distribution', recentReg: 'Latest registrations',
+    friends: 'Friends', groups: 'Groups', addFriend: 'Add friend', createGroup: 'Create group',
+    emptyFriends: 'No friends yet — add one by ID', emptyGroups: 'No groups yet — pick friends to create one',
+    sayHi: 'No messages yet — say hello', msgPh: 'Type a message…', mutedPh: 'The owner muted everyone',
+    muteOn: 'Muted', muteOff: 'Open', members: '{n} members', owner: 'Owner',
+    deployConfig: 'Deployment configuration', levelsSupported: '-tier system', quotaConfig: 'Default quota per tier',
+    upgradeConfig: 'Upgrade thresholds', cfgLock: 'The tier count is fixed by the deployment config file and cannot be changed by admins. The code hard-caps it at 3 tiers — 4 or more is never permitted.',
+    l1note: 'Top tier', l2note: 'Middle tier', l3note: 'Standard', quotaNote: 'Downstream customers allowed',
+    upNote: 'Add {n} to reach {l}',
+    myProfile: 'My profile', save: 'Save profile', complete: 'Complete', incomplete: 'Incomplete',
+    language: '语言 / Language', logout: 'Sign out',
+    nagTitle: 'Complete your profile', nagDesc: 'Please provide your full name, ID card number, phone and home address to unlock full service. You will be reminded at every sign-in until complete.',
+    nagOk: 'Complete now', nagLater: 'Not now',
+    expandTitle: 'Add a customer', expandDesc: 'Enter their 11-digit system ID to attach them under you. They must not already have an upline.',
+    expandPh: '11-digit system ID', expandOk: 'Add customer',
+    errSelf: 'You cannot add yourself', errNotFound: 'No customer found with this ID', errHasParent: 'This customer already has an upline',
+    errNoQuota: 'Your quota is used up — ask the administrator to raise it', errLevel: 'Tier does not allow this attachment',
+    okExpand: '{n} is now your downstream customer', okUpgrade: 'Congratulations — you are now {l}',
+    friendTitle: 'Add friend', friendDesc: 'Search by their 11-digit system ID, then tick the result to add them as a friend.',
+    friendPh: 'Enter 11-digit system ID', friendOk: 'Add friend',
+    errPickFriend: 'Select at least one person', allUsers: 'Search results', noCandidates: 'No user found with that ID',
+    friendIdleTip: 'Enter their 11-digit system ID to search',
+    errFriendSelf: 'You cannot add yourself', errFriendExists: 'Already friends', okFriend: 'Added {n} as a friend',
+    groupTitle: 'Create group', groupDesc: 'Name the group and pick members from your friends. Only the owner can add or remove members.',
+    groupPh: 'Group name', groupOk: 'Create group', errGroupName: 'Please enter a group name', errGroupMember: 'Pick at least one friend',
+    okGroup: 'Group "{n}" created',
+    groupNoFriend: 'You have no friends yet. Add one by their 11-digit system ID first, then create a group.', goAddFriend: 'Add a friend',
+    pickedN: '{n} selected',
+    quotaTitle: 'Adjust quota', quotaDesc: 'Temporarily raise how many downstream customers this person may add.', quotaPh: 'New remaining quota',
+    quotaOk: 'Apply', okQuota: 'Quota updated to {n}',
+    delTitle: 'Delete this customer?', delDesc: 'Soft delete: the record is hidden from lists, all data is retained and restorable.',
+    delOk: 'Delete', okDel: 'Deleted {n}', okStatus: 'Status updated',
+    avatarTitle: 'Choose avatar', avatarDesc: 'Pick a colour for your avatar.',
+    cancel: 'Cancel', confirm: 'Confirm', okSave: 'Profile saved', copy: 'Copied',
+    lv: ['', 'Tier 1', 'Tier 2', 'Tier 3'], adminName: 'Super Admin'
+  }
+};
+const CN = ['演示用户甲', '演示用户乙', '演示用户丙', '演示用户丁', '演示用户戊', '演示用户己', '演示用户庚', '演示用户辛', '演示用户壬', '演示用户癸'];
+const KEY = 'cms_store_v2';
+
+class Component extends DCLogic {
+  state = this.boot();
+
+  boot() {
+    let store = null;
+    try { const raw = localStorage.getItem(KEY); if (raw) store = JSON.parse(raw); } catch (e) {}
+    if (!store || !store.users) store = this.seed();
+    return {
+      store,
+      lang: this.props.defaultLang || 'zh',
+      session: null,
+      mode: 'login',
+      authError: '',
+      route: { n: 'home' },
+      stack: [],
+      form: { username: '', password: '', password2: '', name: '', idcard: '', phone: '', address: '', search: '', msg: '' },
+      modal: null,
+      modalValue: '',
+      modalError: '',
+      picks: [],
+      toast: '',
+      vw: typeof window !== 'undefined' ? window.innerWidth : 1200,
+      levelFilter: 0,
+      netView: 'list',
+      chatTab: 'friends',
+      treeId: null
+    };
+  }
+
+  seed() {
+    let s = 20260802;
+    const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    const nid = () => { let x = String(1 + Math.floor(rnd() * 9)); for (let i = 0; i < 10; i++) x += Math.floor(rnd() * 10); return x; };
+    const now = Date.now(), DAY = 864e5;
+    const cfg = { maxLevel: 3, quota: { 1: 8, 2: 5, 3: 3 }, upgrade: { 3: 3, 2: 5 } };
+    const users = [];
+    let ni = 0;
+    const mk = (level, parentId, daysAgo, phone) => {
+      const name = CN[ni % CN.length]; ni++;
+      const u = {
+        id: nid(), username: phone || ('1' + (30 + Math.floor(rnd() * 60)) + String(Math.floor(rnd() * 1e8)).padStart(8, '0')).slice(0, 11),
+        password: '', name, idcard: '', phone: '', address: '',
+        avatar: Math.floor(rnd() * 8), level, parentId, quota: cfg.quota[level], status: 'active',
+        createdAt: now - daysAgo * DAY - Math.floor(rnd() * DAY), friends: [], profileDone: false
+      };
+      users.push(u); return u;
+    };
+    const a = mk(1, null, 42);
+    const b = mk(1, null, 38), c = mk(1, null, 31);
+    const l2 = [];
+    [a, b, c].forEach((p, pi) => {
+      const n = pi === 0 ? 3 : 2;
+      for (let i = 0; i < n; i++) { const u = mk(2, p.id, 24 - i * 3 - pi * 2); u.profileDone = true; u.phone = u.username; l2.push(u); p.quota--; }
+    });
+    l2.forEach((p, pi) => {
+      const n = 1 + Math.floor(rnd() * 3);
+      for (let i = 0; i < n; i++) { const u = mk(3, p.id, Math.max(0, 13 - pi - i * 2)); p.quota--; if (rnd() > .5) { u.profileDone = true; u.phone = u.username; } }
+    });
+    mk(3, null, 0); mk(3, null, 1);
+    users[users.length - 1].status = 'disabled';
+    a.friends = [l2[0].id, l2[1].id, b.id];
+    l2[0].friends = [a.id]; l2[1].friends = [a.id]; b.friends = [a.id];
+    const gid = 'g' + nid();
+    const groups = [{ id: gid, name: '华东区拓展群', ownerId: a.id, members: [a.id, l2[0].id, l2[1].id, b.id], muted: false, createdAt: now - 5 * DAY }];
+    const messages = {};
+    messages['d:' + [a.id, l2[0].id].sort().join('_')] = [
+      { from: l2[0].id, text: '陈总，这周新签的两位客户资料我都补齐了。', ts: now - 26e5 },
+      { from: a.id, text: '收到，做得不错。指标还够用吗？', ts: now - 24e5 },
+      { from: l2[0].id, text: '还剩 3 个，够这个月用。', ts: now - 22e5 }
+    ];
+    messages['g:' + gid] = [
+      { from: a.id, text: '本月拓展目标已完成 68%，大家再加把劲。', ts: now - 82e5 },
+      { from: l2[1].id, text: '收到！我这边周五前还能再签两家。', ts: now - 79e5 },
+      { from: b.id, text: '我把上周的名单整理好发群里。', ts: now - 76e5 }
+    ];
+    return { users, groups, messages, cfg };
+  }
+
+  save(store) { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+  set(store, extra) { this.save(store); this.setState(Object.assign({ store }, extra || {})); }
+
+  componentDidMount() {
+    this._rs = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('resize', this._rs);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._rs); if (this._tt) clearTimeout(this._tt); }
+  componentDidUpdate() {
+    if (this.msgEl && this.state.route.n === 'thread') this.msgEl.scrollTop = this.msgEl.scrollHeight;
+  }
+
+  get t() { return T[this.state.lang]; }
+  get cfg() {
+    const c = this.state.store.cfg;
+    const p = parseInt(this.props.systemMaxLevel, 10);
+    const max = Math.min(3, Math.max(1, p || c.maxLevel));
+    return Object.assign({}, c, { maxLevel: max });
+  }
+  users() { return this.state.store.users; }
+  live() { return this.state.store.users.filter(u => u.status !== 'deleted'); }
+  byId(id) { return this.state.store.users.find(u => u.id === id); }
+  kids(id) { return this.live().filter(u => u.parentId === id); }
+  levelName(l) { const lv = this.t.lv; return lv[l] || lv[3]; }
+  initial(n) { return (n || '?').trim().charAt(0).toUpperCase(); }
+  av(u) { return PAL[(u && u.avatar || 0) % 8]; }
+  badge(l) {
+    if (l === 1) return { bg: '#FFF0E4', fg: '#D9600B' };
+    if (l === 2) return { bg: '#EAF1FF', fg: '#2B5FD9' };
+    return { bg: '#F1F3F6', fg: '#5A616E' };
+  }
+  fdate(ts) {
+    const d = new Date(ts);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  ftime(ts) {
+    const d = new Date(ts), n = new Date();
+    const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    if (d.toDateString() === n.toDateString()) return hm;
+    return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0');
+  }
+  toast(msg) {
+    this.setState({ toast: msg });
+    if (this._tt) clearTimeout(this._tt);
+    this._tt = setTimeout(() => this.setState({ toast: '' }), 2400);
+  }
+  tpl(str, map) { let r = str; Object.keys(map).forEach(k => { r = r.split('{' + k + '}').join(map[k]); }); return r; }
+
+  nav(n, extra) {
+    const st = this.state.stack.slice();
+    if (['detail', 'thread'].indexOf(n) >= 0) st.push(this.state.route);
+    this.setState(Object.assign({ route: Object.assign({ n }, extra), stack: st, form: Object.assign({}, this.state.form, { msg: '' }) }));
+  }
+  tab(n) { this.setState({ route: { n }, stack: [], levelFilter: 0, treeId: null }); }
+  back() {
+    const st = this.state.stack.slice();
+    const prev = st.pop() || { n: 'home' };
+    this.setState({ route: prev, stack: st });
+  }
+
+  // ---- auth ----
+  doAuth() {
+    const f = this.state.form, t = this.t;
+    const un = f.username.trim(), pw = f.password;
+    if (!un || !pw) return this.setState({ authError: t.errEmpty });
+    if (this.state.mode === 'register') {
+      if (pw.length < 6) return this.setState({ authError: t.errShort });
+      if (pw !== f.password2) return this.setState({ authError: t.errMismatch });
+      if (un === 'admin' || this.users().some(u => u.username === un)) return this.setState({ authError: t.errExists });
+      const store = JSON.parse(JSON.stringify(this.state.store));
+      let id; do { id = String(1 + Math.floor(Math.random() * 9)); for (let i = 0; i < 10; i++) id += Math.floor(Math.random() * 10); } while (store.users.some(u => u.id === id));
+      const lv = this.cfg.maxLevel;
+      const u = {
+        id, username: un, password: pw, name: un.length > 6 ? un.slice(-4) : un, idcard: '', phone: /^\d{11}$/.test(un) ? un : '', address: '',
+        avatar: Math.floor(Math.random() * 8), level: lv, parentId: null, quota: this.cfg.quota[lv] || 0,
+        status: 'active', createdAt: Date.now(), friends: [], profileDone: false
+      };
+      store.users.push(u);
+      this.save(store);
+      return this.setState({ store, session: id, authError: '', route: { n: 'home' }, stack: [], modal: { k: 'nag' }, form: Object.assign({}, f, { password: '', password2: '' }) });
+    }
+    if (un === 'admin') {
+      if (!pw) return this.setState({ authError: t.errPwd });
+      return this.setState({ session: 'admin', authError: '', route: { n: 'stats' }, stack: [], form: Object.assign({}, f, { password: '' }) });
+    }
+    const u = this.users().find(x => x.username === un && x.status !== 'deleted');
+    if (!u) return this.setState({ authError: t.errNoUser });
+    if (u.password !== pw) return this.setState({ authError: t.errPwd });
+    if (u.status === 'disabled') return this.setState({ authError: t.errDisabled });
+    this.setState({
+      session: u.id, authError: '', route: { n: 'home' }, stack: [],
+      modal: u.profileDone ? null : { k: 'nag' },
+      form: Object.assign({}, f, { password: '', password2: '', name: u.name, idcard: u.idcard, phone: u.phone, address: u.address })
+    });
+  }
+
+  // ---- actions ----
+  doExpand() {
+    const t = this.t, me = this.byId(this.state.session);
+    const id = this.state.modalValue.trim();
+    if (id === me.id) return this.setState({ modalError: t.errSelf });
+    const target = this.users().find(u => u.id === id && u.status !== 'deleted');
+    if (!target) return this.setState({ modalError: t.errNotFound });
+    if (target.parentId) return this.setState({ modalError: t.errHasParent });
+    if (me.quota <= 0) return this.setState({ modalError: t.errNoQuota });
+    if (me.level >= this.cfg.maxLevel) return this.setState({ modalError: t.errLevel });
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const T2 = store.users.find(u => u.id === id), M = store.users.find(u => u.id === me.id);
+    T2.parentId = M.id; T2.level = Math.min(this.cfg.maxLevel, M.level + 1); M.quota -= 1;
+    let msg = this.tpl(t.okExpand, { n: T2.name });
+    const th = this.cfg.upgrade[M.level];
+    const count = store.users.filter(u => u.parentId === M.id && u.status !== 'deleted').length;
+    if (th && count >= th && M.level > 1) { M.level -= 1; M.quota += this.cfg.quota[M.level] || 0; msg = this.tpl(t.okUpgrade, { l: this.levelName(M.level) }); }
+    this.set(store, { modal: null, modalValue: '', modalError: '' });
+    this.toast(msg);
+  }
+  doFriend() {
+    const t = this.t, me = this.byId(this.state.session), ids = this.state.picks;
+    if (!ids.length) return this.setState({ modalError: t.errPickFriend });
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const M = store.users.find(u => u.id === me.id);
+    const names = [];
+    ids.forEach(id => {
+      const F = store.users.find(u => u.id === id);
+      if (!F) return;
+      if ((M.friends || []).indexOf(id) < 0) M.friends = (M.friends || []).concat([id]);
+      if ((F.friends || []).indexOf(M.id) < 0) F.friends = (F.friends || []).concat([M.id]);
+      names.push(F.name);
+    });
+    this.set(store, { modal: null, modalValue: '', modalError: '', picks: [] });
+    this.toast(this.tpl(t.okFriend, { n: names.join('、') }));
+  }
+  doGroup() {
+    const t = this.t, me = this.byId(this.state.session), name = this.state.modalValue.trim();
+    if (!name) return this.setState({ modalError: t.errGroupName });
+    if (!this.state.picks.length) return this.setState({ modalError: t.errGroupMember });
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    store.groups.push({ id: 'g' + Date.now(), name, ownerId: me.id, members: [me.id].concat(this.state.picks), muted: false, createdAt: Date.now() });
+    this.set(store, { modal: null, modalValue: '', modalError: '', picks: [], chatTab: 'groups' });
+    this.toast(this.tpl(t.okGroup, { n: name }));
+  }
+  doQuota() {
+    const n = parseInt(this.state.modalValue, 10);
+    if (isNaN(n) || n < 0) return this.setState({ modalError: this.t.quotaPh });
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const u = store.users.find(x => x.id === this.state.route.id);
+    u.quota = n;
+    this.set(store, { modal: null, modalValue: '', modalError: '' });
+    this.toast(this.tpl(this.t.okQuota, { n }));
+  }
+  doDelete() {
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const u = store.users.find(x => x.id === this.state.route.id);
+    u.status = 'deleted';
+    const name = u.name;
+    this.save(store);
+    const st = this.state.stack.slice(); const prev = st.pop() || { n: 'net' };
+    this.setState({ store, modal: null, route: prev, stack: st });
+    this.toast(this.tpl(this.t.okDel, { n: name }));
+  }
+  doStatus() {
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const u = store.users.find(x => x.id === this.state.route.id);
+    u.status = u.status === 'active' ? 'disabled' : 'active';
+    this.set(store); this.toast(this.t.okStatus);
+  }
+  doSend() {
+    const txt = this.state.form.msg.trim(); if (!txt) return;
+    const r = this.state.route, me = this.state.session;
+    const key = r.kind === 'group' ? 'g:' + r.id : 'd:' + [me, r.id].sort().join('_');
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    if (!store.messages[key]) store.messages[key] = [];
+    store.messages[key].push({ from: me, text: txt, ts: Date.now() });
+    this.set(store, { form: Object.assign({}, this.state.form, { msg: '' }) });
+  }
+  doSaveProfile() {
+    const f = this.state.form;
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const u = store.users.find(x => x.id === this.state.session);
+    if (!u) return;
+    u.name = f.name.trim() || u.name; u.idcard = f.idcard.trim(); u.phone = f.phone.trim(); u.address = f.address.trim();
+    u.profileDone = !!(u.name && u.idcard && u.phone && u.address);
+    this.set(store); this.toast(this.t.okSave);
+  }
+  cfgBump(kind, lvl, delta) {
+    const store = JSON.parse(JSON.stringify(this.state.store));
+    const o = kind === 'q' ? store.cfg.quota : store.cfg.upgrade;
+    o[lvl] = Math.max(0, Math.min(99, (o[lvl] || 0) + delta));
+    this.set(store);
+  }
+
+  renderVals() {
+    const t = this.t, S = this.state, cfg = this.cfg;
+    const isDesktop = S.vw >= 900;
+    const authed = !!S.session, isAdmin = S.session === 'admin';
+    const me = isAdmin ? { id: '00000000000', name: t.adminName, avatar: 6, level: 0, quota: 0, friends: [] } : (this.byId(S.session) || {});
+    const rn = S.route.n;
+    const F = (k) => (e) => this.setState({ form: Object.assign({}, S.form, { [k]: e.target.value }) });
+    const h = {}; ['username', 'password', 'password2', 'name', 'idcard', 'phone', 'address', 'search', 'msg'].forEach(k => h[k] = F(k));
+
+    const seg = (on) => on
+      ? { bg: '#fff', fg: '#12151C', sh: '0 1px 3px rgba(16,20,28,.14)' }
+      : { bg: 'transparent', fg: '#6B7280', sh: 'none' };
+    const sl = seg(S.mode === 'login'), sr = seg(S.mode === 'register');
+    const vl = seg(S.netView === 'list'), vt = seg(S.netView === 'tree');
+    const cf = seg(S.chatTab === 'friends'), cg = seg(S.chatTab === 'groups');
+
+    // nav
+    const mkNav = (key, label, d, route) => {
+      const on = rn === route || (route === 'net' && (rn === 'detail'));
+      return {
+        key, label, d, go: () => this.tab(route),
+        bg: on ? '#FFF3E9' : 'transparent', fg: on ? '#FF6A00' : (isDesktop ? '#5A616E' : '#9AA0AC'),
+        fw: on ? 800 : 500, sw: on ? 2.1 : 1.7, badge: ''
+      };
+    };
+    const navItems = isAdmin
+      ? [mkNav('s', t.stats, ICON.stats, 'stats'), mkNav('n', t.net, ICON.net, 'net'), mkNav('c', t.config, ICON.cfg, 'config'), mkNav('m', t.me, ICON.me, 'me')]
+      : [mkNav('h', t.home, ICON.home, 'home'), mkNav('n', t.net, ICON.net, 'net'), mkNav('c', t.chat, ICON.chat, 'chat'), mkNav('m', t.me, ICON.me, 'me')];
+
+    // customer home
+    const myKids = isAdmin ? [] : this.kids(me.id);
+    const parent = !isAdmin && me.parentId ? this.byId(me.parentId) : null;
+    const th = cfg.upgrade[me.level];
+    const canUp = !isAdmin && me.level > 1 && !!th;
+    const need = canUp ? Math.max(0, th - myKids.length) : 0;
+    const rowOf = (u) => {
+      const b = this.badge(u.level), k = this.kids(u.id);
+      return {
+        id: u.id, name: u.name, initial: this.initial(u.name), av: this.av(u),
+        levelName: this.levelName(u.level), badgeBg: b.bg, badgeFg: b.fg,
+        meta: 'ID ' + u.id + ' · ' + this.fdate(u.createdAt),
+        op: u.status === 'active' ? 1 : .45,
+        statusText: u.status === 'disabled' ? t.disabled : '',
+        statusBg: '#FFF2F0', statusFg: '#C7361B',
+        hasKids: k.length > 0, kidCount: k.length + ' ›',
+        go: () => this.nav('detail', { id: u.id })
+      };
+    };
+
+    // net list
+    let netList = [], listTitle = '', showTree = false, showFilters = false, crumbs = [];
+    if (isAdmin) {
+      showTree = S.netView === 'tree';
+      showFilters = S.netView === 'list';
+      if (showTree) {
+        const base = S.treeId ? this.kids(S.treeId) : this.live().filter(u => !u.parentId);
+        netList = base.map(rowOf);
+        listTitle = S.treeId ? this.levelName((this.byId(S.treeId) || {}).level) + ' · ' + (this.byId(S.treeId) || {}).name : t.root;
+        const path = [];
+        let cur = S.treeId;
+        while (cur) { const u = this.byId(cur); if (!u) break; path.unshift(u); cur = u.parentId; }
+        crumbs = [{ label: t.root, bg: S.treeId ? '#F3F4F7' : '#FFF3E9', fg: S.treeId ? '#5A616E' : '#FF6A00', fw: S.treeId ? 600 : 800, go: () => this.setState({ treeId: null }) }]
+          .concat(path.map((u, i) => ({
+            label: u.name, bg: i === path.length - 1 ? '#FFF3E9' : '#F3F4F7', fg: i === path.length - 1 ? '#FF6A00' : '#5A616E',
+            fw: i === path.length - 1 ? 800 : 600, go: () => this.setState({ treeId: u.id })
+          })));
+        netList = netList.map(r => Object.assign({}, r, {
+          go: r.hasKids ? (() => this.setState({ treeId: r.id })) : (() => this.nav('detail', { id: r.id })),
+          openDetail: (e) => { e.stopPropagation(); this.nav('detail', { id: r.id }); }
+        }));
+      } else {
+        const q = S.form.search.trim().toLowerCase();
+        netList = this.live()
+          .filter(u => !S.levelFilter || u.level === S.levelFilter)
+          .filter(u => !q || u.name.toLowerCase().indexOf(q) >= 0 || u.id.indexOf(q) >= 0 || u.username.indexOf(q) >= 0)
+          .sort((a, b) => a.level - b.level || b.createdAt - a.createdAt)
+          .map(rowOf);
+        listTitle = S.levelFilter ? this.levelName(S.levelFilter) : t.allCustomers;
+      }
+    } else {
+      netList = myKids.map(rowOf);
+      listTitle = t.myCustomers;
+    }
+    const levelFilters = [0].concat(Array.from({ length: cfg.maxLevel }, (_, i) => i + 1)).map(l => ({
+      label: l ? this.levelName(l) : t.allLevels,
+      bd: S.levelFilter === l ? '#FF8A2B' : '#E4E7EC',
+      bg: S.levelFilter === l ? '#FFF3E9' : '#fff',
+      fg: S.levelFilter === l ? '#FF6A00' : '#5A616E',
+      go: () => this.setState({ levelFilter: l })
+    }));
+
+    // detail
+    const du = rn === 'detail' ? this.byId(S.route.id) : null;
+    let d = {}, detailRows = [], detailKids = [];
+    if (du) {
+      const b = this.badge(du.level);
+      const stt = du.status === 'active' ? { bg: '#EAF7EF', fg: '#127A3E', text: t.active } : du.status === 'disabled' ? { bg: '#FFF2F0', fg: '#C7361B', text: t.disabled } : { bg: '#F1F3F6', fg: '#8A909E', text: t.deleted };
+      const kd = this.kids(du.id);
+      d = {
+        name: du.name, initial: this.initial(du.name), av: this.av(du), levelName: this.levelName(du.level),
+        badgeBg: b.bg, badgeFg: b.fg, statusBg: stt.bg, statusFg: stt.fg, statusText: stt.text,
+        downCount: kd.length, quota: du.quota, days: Math.max(0, Math.floor((Date.now() - du.createdAt) / 864e5))
+      };
+      const p = du.parentId ? this.byId(du.parentId) : null;
+      const na = { v: t.notFilled, color: '#C3C8D2' };
+      detailRows = [
+        { k: t.userId, v: du.id, color: '#12151C' },
+        { k: t.account, v: du.username, color: '#12151C' },
+        { k: t.realName, v: du.name, color: '#12151C' },
+        du.idcard ? { k: t.idCard, v: du.idcard, color: '#12151C' } : Object.assign({ k: t.idCard }, na),
+        du.phone ? { k: t.phone, v: du.phone, color: '#12151C' } : Object.assign({ k: t.phone }, na),
+        du.address ? { k: t.address, v: du.address, color: '#12151C' } : Object.assign({ k: t.address }, na),
+        { k: t.upline, v: p ? p.name : '—', color: '#12151C' },
+        { k: t.quotaTotal, v: du.quota + ' / ' + (cfg.quota[du.level] || 0), color: '#12151C' },
+        { k: t.joinedAt, v: this.fdate(du.createdAt), color: '#12151C' }
+      ];
+      detailKids = kd.map(rowOf);
+    }
+
+    // stats
+    const live = this.live();
+    const DAY = 864e5, today = new Date(); today.setHours(0, 0, 0, 0);
+    const dayCount = (off) => live.filter(u => { const x = new Date(u.createdAt); x.setHours(0, 0, 0, 0); return x.getTime() === today.getTime() - off * DAY; }).length;
+    const chartRaw = [6, 5, 4, 3, 2, 1, 0].map(o => ({ o, n: dayCount(o) }));
+    const maxN = Math.max(1, ...chartRaw.map(c => c.n));
+    const chart = chartRaw.map(c => {
+      const dt = new Date(today.getTime() - c.o * DAY);
+      return {
+        n: c.n, d: (dt.getMonth() + 1) + '/' + dt.getDate(),
+        h: Math.max(6, Math.round(c.n / maxN * 92)) + 'px',
+        bg: c.o === 0 ? 'linear-gradient(180deg,#FF9138,#FF6A00)' : 'linear-gradient(180deg,#FFD6B4,#FFB27A)'
+      };
+    });
+    const week = chartRaw.reduce((a, c) => a + c.n, 0);
+    const yest = dayCount(1), tod = dayCount(0);
+    const kpis = [
+      { label: t.totalUsers, value: live.length, sub: t.allTime, color: '#12151C', glow: 'rgba(255,138,43,.10)' },
+      { label: t.todayNew, value: tod, sub: (tod - yest >= 0 ? '+' : '') + (tod - yest) + ' ' + t.vsYesterday, color: '#FF6A00', glow: 'rgba(255,138,43,.16)' },
+      { label: t.weekNew, value: week, sub: t.last7, color: '#12151C', glow: 'rgba(91,141,239,.10)' },
+      { label: t.disabledCount, value: live.filter(u => u.status === 'disabled').length, sub: t.needAttention, color: '#C7361B', glow: 'rgba(199,54,27,.08)' }
+    ];
+    const dist = Array.from({ length: cfg.maxLevel }, (_, i) => i + 1).map(l => {
+      const n = live.filter(u => u.level === l).length;
+      const pct = live.length ? Math.round(n / live.length * 100) : 0;
+      return {
+        label: this.levelName(l), text: n + ' · ' + pct + '%', pct: pct + '%',
+        bg: l === 1 ? 'linear-gradient(90deg,#FFB347,#FF6A00)' : l === 2 ? 'linear-gradient(90deg,#8FB6FF,#2B5FD9)' : 'linear-gradient(90deg,#C9CFDA,#8A93A5)'
+      };
+    });
+    const recentUsers = live.slice().sort((a, b) => b.createdAt - a.createdAt).slice(0, 5).map(rowOf);
+
+    // chat
+    const G = S.store.groups.filter(g => (g.members || []).indexOf(me.id) >= 0);
+    const lastOf = (key) => { const a = S.store.messages[key] || []; return a[a.length - 1]; };
+    let threads = [];
+    if (S.chatTab === 'friends') {
+      threads = (me.friends || []).map(fid => this.byId(fid)).filter(Boolean).map(u => {
+        const m = lastOf('d:' + [me.id, u.id].sort().join('_'));
+        return {
+          name: u.name, initial: this.initial(u.name), av: this.av(u), tag: '',
+          last: m ? m.text : t.sayHi, time: m ? this.ftime(m.ts) : '',
+          go: () => this.nav('thread', { kind: 'dm', id: u.id })
+        };
+      });
+    } else {
+      threads = G.map(g => {
+        const m = lastOf('g:' + g.id);
+        const sender = m ? this.byId(m.from) : null;
+        return {
+          name: g.name, initial: this.initial(g.name), av: PAL[(g.name.length + 2) % 8],
+          tag: this.tpl(t.members, { n: g.members.length }),
+          last: m ? ((sender ? sender.name + ': ' : '') + m.text) : t.sayHi,
+          time: m ? this.ftime(m.ts) : '',
+          go: () => this.nav('thread', { kind: 'group', id: g.id })
+        };
+      });
+    }
+
+    // thread
+    const grp = rn === 'thread' && S.route.kind === 'group' ? S.store.groups.find(g => g.id === S.route.id) : null;
+    const peer = rn === 'thread' && S.route.kind === 'dm' ? this.byId(S.route.id) : null;
+    const mkey = rn === 'thread' ? (grp ? 'g:' + grp.id : 'd:' + [me.id, S.route.id].sort().join('_')) : '';
+    const rawMsgs = (S.store.messages[mkey] || []);
+    const messages = rawMsgs.map(m => {
+      const mine = m.from === me.id, u = this.byId(m.from);
+      return {
+        text: m.text, time: this.ftime(m.ts), align: mine ? 'flex-end' : 'flex-start',
+        who: (!mine && grp && u) ? u.name : '',
+        bg: mine ? 'linear-gradient(180deg,#FF9138,#FF6A00)' : '#F5F6F8',
+        fg: mine ? '#fff' : '#12151C',
+        bd: mine ? 'transparent' : '#EDEFF3',
+        radius: mine ? '16px 16px 5px 16px' : '16px 16px 16px 5px'
+      };
+    });
+    const isOwner = grp && grp.ownerId === me.id;
+    const muted = grp && grp.muted && !isOwner;
+
+    // modal
+    const M = S.modal;
+    const mk = M ? M.k : '';
+    const avatarOptions = PAL.map((p, i) => ({
+      bg: p, bd: (me.avatar === i ? '2px solid #FF6A00' : '2px solid transparent'),
+      go: () => { const store = JSON.parse(JSON.stringify(S.store)); const u = store.users.find(x => x.id === me.id); if (u) { u.avatar = i; this.set(store, { modal: null }); } }
+    }));
+    const friendPicks = (me.friends || []).map(fid => this.byId(fid)).filter(Boolean).map(u => {
+      const on = S.picks.indexOf(u.id) >= 0;
+      return {
+        name: u.name, id: 'ID ' + u.id, initial: this.initial(u.name), av: this.av(u),
+        bd: on ? '#FF8A2B' : '#E7E9EE', bg: on ? '#FFF8F2' : '#fff',
+        boxBd: on ? '#FF6A00' : '#D7DBE2', boxBg: on ? '#FF6A00' : '#fff', tickOp: on ? 1 : 0,
+        go: () => this.setState({ picks: on ? S.picks.filter(x => x !== u.id) : S.picks.concat([u.id]) })
+      };
+    });
+    const fq = S.modalValue.trim();
+    const friendCandidates = (fq.length < 4 ? [] : this.live()
+      .filter(u => u.id !== me.id && u.status === 'active' && (me.friends || []).indexOf(u.id) < 0)
+      .filter(u => u.id.indexOf(fq) >= 0))
+      .slice(0, 20)
+      .map(u => {
+        const on = S.picks.indexOf(u.id) >= 0;
+        return {
+          name: u.name, id: 'ID ' + u.id, initial: this.initial(u.name), av: this.av(u),
+          sub: this.levelName(u.level) + ' · ID ' + u.id,
+          bd: on ? '#FF8A2B' : '#E7E9EE', bg: on ? '#FFF8F2' : '#fff',
+          boxBd: on ? '#FF6A00' : '#D7DBE2', boxBg: on ? '#FF6A00' : '#fff', tickOp: on ? 1 : 0,
+          go: () => this.setState({ picks: on ? S.picks.filter(x => x !== u.id) : S.picks.concat([u.id]), modalError: '' })
+        };
+      });
+    const modalMap = {
+      nag: { title: t.nagTitle, desc: t.nagDesc, ok: t.nagOk, cancel: t.nagLater, confirm: () => this.setState({ modal: null, route: { n: 'me' }, stack: [], form: Object.assign({}, S.form, { name: me.name || '', idcard: me.idcard || '', phone: me.phone || '', address: me.address || '' }) }) },
+      expand: { title: t.expandTitle, desc: t.expandDesc, ok: t.expandOk, ph: t.expandPh, input: true, confirm: () => this.doExpand() },
+      friend: { title: t.friendTitle, desc: t.friendDesc, ok: t.friendOk, ph: t.friendPh, input: true, friend: true, confirm: () => this.doFriend() },
+      group: { title: t.groupTitle, desc: t.groupDesc, ok: t.groupOk, ph: t.groupPh, input: true, group: true, confirm: () => this.doGroup() },
+      quota: { title: t.quotaTitle, desc: t.quotaDesc, ok: t.quotaOk, ph: t.quotaPh, input: true, confirm: () => this.doQuota() },
+      del: { title: t.delTitle, desc: t.delDesc, ok: t.delOk, danger: true, confirm: () => this.doDelete() },
+      avatar: { title: t.avatarTitle, desc: t.avatarDesc, ok: t.confirm, avatar: true, confirm: () => this.setState({ modal: null }) }
+    };
+    const mm = modalMap[mk] || {};
+
+    const openModal = (k, val) => () => this.setState({ modal: { k }, modalValue: val || '', modalError: '', picks: [] });
+
+    const screenTitles = {
+      home: t.appName, net: isAdmin ? t.allCustomers : t.myCustomers, detail: (du || {}).name || '',
+      stats: t.stats, config: t.config, chat: t.chat, me: t.me,
+      thread: grp ? grp.name : (peer ? peer.name : t.chat)
+    };
+
+    return {
+      t, isDesktop,
+      isAuth: !authed, authed, isAdmin,
+      roleLabel: isAdmin ? t.admin : this.levelName(me.level),
+      appDir: isDesktop ? 'row' : 'column',
+      contentMax: isDesktop ? '880px' : '100%',
+      contentPad: isDesktop ? '26px 30px 40px' : '13px 13px 20px',
+      twoCol: isDesktop ? '1fr 1fr' : '1fr',
+      spanAll: isDesktop ? 'span 2' : 'auto',
+      chartGap: isDesktop ? '14px' : '7px',
+      showMobileHeader: !isDesktop || rn === 'detail' || rn === 'thread',
+      showTabbar: !isDesktop,
+      canBack: S.stack.length > 0,
+      goBack: () => this.back(),
+      screenTitle: screenTitles[rn] || t.appName,
+      navItems,
+
+      // auth
+      isRegister: S.mode === 'register',
+      goLogin: () => this.setState({ mode: 'login', authError: '' }),
+      goRegister: () => this.setState({ mode: 'register', authError: '' }),
+      tabLoginBg: sl.bg, tabLoginFg: sl.fg, tabLoginSh: sl.sh,
+      tabRegBg: sr.bg, tabRegFg: sr.fg, tabRegSh: sr.sh,
+      userPh: S.mode === 'register' ? t.regPh : t.loginPh,
+      submitLabel: S.mode === 'register' ? t.registerBtn : t.loginBtn,
+      submitAuth: () => this.doAuth(),
+      authError: S.authError,
+      fillAdmin: () => this.setState({ mode: 'login', form: Object.assign({}, S.form, { username: 'admin', password: '' }), authError: '' }),
+      fillUser: () => this.setState({ mode: 'login', form: Object.assign({}, S.form, { username: '', password: '' }), authError: '' }),
+
+      // lang
+      lang: S.lang,
+      langLabel: S.lang === 'zh' ? '中文 · Switch to English' : 'English · 切换到中文',
+      langShort: S.lang === 'zh' ? 'EN' : '中',
+      langCurrent: S.lang === 'zh' ? '简体中文' : 'English',
+      toggleLang: () => this.setState({ lang: S.lang === 'zh' ? 'en' : 'zh' }),
+
+      v: S.form, h,
+      me, meName: me.name, meInitial: this.initial(me.name), meAvatar: this.av(me),
+      meLevelName: isAdmin ? t.admin : this.levelName(me.level),
+      meBadgeBg: this.badge(me.level).bg, meBadgeFg: this.badge(me.level).fg,
+      goMe: () => this.tab('me'), goNet: () => this.tab('net'),
+
+      isHome: rn === 'home' && !isAdmin, isNet: rn === 'net', isDetail: rn === 'detail',
+      isStats: rn === 'stats' && isAdmin, isChat: rn === 'chat' && !isAdmin, isThread: rn === 'thread',
+      isConfig: rn === 'config' && isAdmin, isMe: rn === 'me',
+
+      myDownCount: myKids.length, myQuota: me.quota || 0,
+      upgradeNeedText: canUp ? need : '—',
+      showUpgradeBar: canUp,
+      upgradeFrac: myKids.length + ' / ' + (th || 0),
+      upgradePct: Math.min(100, Math.round(myKids.length / (th || 1) * 100)) + '%',
+      upgradeHint: need > 0 ? this.tpl(t.upgradeHint2, { n: need, l: this.levelName(me.level - 1) }) : t.maxLevel,
+      hasParent: !!parent, noParent: !isAdmin && !parent,
+      parentName: parent ? parent.name : '', parentInitial: parent ? this.initial(parent.name) : '',
+      parentAvatar: parent ? this.av(parent) : PAL[0],
+      parentMeta: parent ? (this.levelName(parent.level) + ' · ID ' + parent.id) : '',
+      openExpand: openModal('expand'),
+      homeDownstream: myKids.slice(0, 4).map(rowOf), homeEmpty: myKids.length === 0,
+
+      showTree, showFilters, crumbs, netList, listTitle,
+      listCount: netList.length + '', netEmpty: netList.length === 0,
+      showTreeSelf: showTree && !!S.treeId,
+      treeSelfName: S.treeId ? (this.byId(S.treeId) || {}).name : '',
+      treeSelfAv: S.treeId ? this.av(this.byId(S.treeId)) : PAL[0],
+      treeSelfInitial: S.treeId ? this.initial((this.byId(S.treeId) || {}).name) : '',
+      treeSelfMeta: S.treeId ? (this.levelName((this.byId(S.treeId) || {}).level) + ' · ID ' + S.treeId) : '',
+      treeSelfGo: () => this.nav('detail', { id: S.treeId }),
+      netEmptyText: showTree && S.treeId ? t.emptyLeaf : t.emptyList,
+      levelFilters,
+      setViewList: () => this.setState({ netView: 'list' }), setViewTree: () => this.setState({ netView: 'tree', treeId: null }),
+      vListBg: vl.bg, vListFg: vl.fg, vListSh: vl.sh, vTreeBg: vt.bg, vTreeFg: vt.fg, vTreeSh: vt.sh,
+
+      d, detailRows, detailKids, detailHasKids: detailKids.length > 0, detailKidCount: detailKids.length + '',
+      openQuota: () => this.setState({ modal: { k: 'quota' }, modalValue: String((du || {}).quota || 0), modalError: '' }),
+      toggleStatus: () => this.doStatus(),
+      statusActionLabel: du && du.status === 'active' ? t.disable : t.activate,
+      statusActionColor: du && du.status === 'active' ? '#C7361B' : '#127A3E',
+      deleteUser: openModal('del'),
+
+      kpis, chart, chartTotal: '+' + week, dist, recentUsers,
+
+      threads, threadsEmpty: threads.length === 0,
+      chatEmptyText: S.chatTab === 'friends' ? t.emptyFriends : t.emptyGroups,
+      chatActionLabel: S.chatTab === 'friends' ? t.addFriend : t.createGroup,
+      openChatAction: openModal(S.chatTab === 'friends' ? 'friend' : 'group'),
+      setChatFriends: () => this.setState({ chatTab: 'friends' }), setChatGroups: () => this.setState({ chatTab: 'groups' }),
+      cFriBg: cf.bg, cFriFg: cf.fg, cFriSh: cf.sh, cGrpBg: cg.bg, cGrpFg: cg.fg, cGrpSh: cg.sh,
+
+      messages, msgsEmpty: messages.length === 0,
+      threadIsGroup: !!grp, isGroupOwner: !!isOwner,
+      groupMembersText: grp ? (this.tpl(t.members, { n: grp.members.length }) + ' · ' + t.owner + ' ' + ((this.byId(grp.ownerId) || {}).name || '')) : '',
+      muteLabel: grp && grp.muted ? t.muteOn : t.muteOff,
+      muteBd: grp && grp.muted ? '#FFD9D2' : '#DCEEE3', muteBg: grp && grp.muted ? '#FFF2F0' : '#EAF7EF',
+      muteFg: grp && grp.muted ? '#C7361B' : '#127A3E',
+      toggleMute: () => { const store = JSON.parse(JSON.stringify(S.store)); const g = store.groups.find(x => x.id === grp.id); g.muted = !g.muted; this.set(store); },
+      threadHeight: isDesktop ? 'calc(100vh - 120px)' : 'calc(100vh - 190px)',
+      inputDisabled: !!muted, inputPh: muted ? t.mutedPh : t.msgPh,
+      inputBg: muted ? '#F5F6F8' : '#fff',
+      sendBg: muted ? '#C3C8D2' : 'linear-gradient(180deg,#FF9138,#FF6A00)',
+      sendCursor: muted ? 'not-allowed' : 'pointer',
+      sendMsg: () => this.doSend(),
+      msgKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.doSend(); } },
+      msgRef: (el) => { this.msgEl = el; },
+
+      cfgLevels: cfg.maxLevel,
+      levelChips: Array.from({ length: 3 }, (_, i) => i + 1).map(l => {
+        const on = l <= cfg.maxLevel;
+        return {
+          label: this.levelName(l), note: l === 1 ? t.l1note : l === 2 ? t.l2note : t.l3note,
+          bg: on ? 'rgba(255,255,255,.10)' : 'rgba(255,255,255,.03)',
+          bd: on ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.06)',
+          fg: on ? '#fff' : 'rgba(255,255,255,.28)', sub: on ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.2)'
+        };
+      }),
+      quotaRows: Array.from({ length: cfg.maxLevel }, (_, i) => i + 1).map(l => ({
+        label: this.levelName(l), note: t.quotaNote, value: S.store.cfg.quota[l] || 0,
+        inc: () => this.cfgBump('q', l, 1), dec: () => this.cfgBump('q', l, -1)
+      })),
+      upRows: Array.from({ length: Math.max(0, cfg.maxLevel - 1) }, (_, i) => cfg.maxLevel - i).map(l => ({
+        label: this.levelName(l), note: this.tpl(t.upNote, { n: S.store.cfg.upgrade[l] || 0, l: this.levelName(l - 1) }),
+        value: S.store.cfg.upgrade[l] || 0,
+        inc: () => this.cfgBump('u', l, 1), dec: () => this.cfgBump('u', l, -1)
+      })),
+
+      showProfileCard: !isAdmin,
+      profBadgeText: me.profileDone ? t.complete : t.incomplete,
+      profBadgeBg: me.profileDone ? '#EAF7EF' : '#FFF4E5',
+      profBadgeFg: me.profileDone ? '#127A3E' : '#B26A00',
+      saveProfile: () => this.doSaveProfile(),
+      openAvatar: () => { if (!isAdmin) this.setState({ modal: { k: 'avatar' } }); },
+      logout: () => this.setState({ session: null, route: { n: 'home' }, stack: [], modal: null, form: Object.assign({}, S.form, { password: '', password2: '' }) }),
+
+      modalOpen: !!M, modalTitle: mm.title || '', modalDesc: mm.desc || '',
+      modalOk: mm.ok || t.confirm, modalCancel: mm.cancel || t.cancel,
+      modalOkBg: mm.danger ? 'linear-gradient(180deg,#E2543A,#C7361B)' : 'linear-gradient(180deg,#FF9138,#FF6A00)',
+      modalHasInput: !!mm.input, modalIsAvatar: !!mm.avatar, modalIsGroup: !!mm.group,
+      modalPh: mm.ph || '', modalValue: S.modalValue, modalError: S.modalError,
+      modalInput: (e) => this.setState({ modalValue: e.target.value, modalError: '' }),
+      modalConfirm: mm.confirm || (() => this.setState({ modal: null })),
+      closeModal: () => this.setState({ modal: null, modalError: '' }),
+      stop: (e) => e.stopPropagation(),
+      modalAlign: isDesktop ? 'center' : 'flex-end',
+      modalPad: isDesktop ? '24px' : '0',
+      modalRadius: isDesktop ? '22px' : '22px 22px 0 0',
+      avatarOptions, friendPicks, friendCandidates,
+      modalIsFriend: !!mm.friend,
+      friendNoCandidates: mk === 'friend' && fq.length >= 4 && friendCandidates.length === 0,
+      friendHasCandidates: mk === 'friend' && friendCandidates.length > 0,
+      friendIdle: mk === 'friend' && fq.length < 4,
+      groupNoFriends: mk === 'group' && friendPicks.length === 0,
+      groupHasFriends: mk === 'group' && friendPicks.length > 0,
+      pickedText: this.tpl(t.pickedN, { n: S.picks.length }),
+      goAddFriendFromGroup: () => this.setState({ modal: { k: 'friend' }, modalValue: '', modalError: '', chatTab: 'friends' }),
+      toast: S.toast
+    };
+  }
+}
+
+</script>
+</body>
+</html>

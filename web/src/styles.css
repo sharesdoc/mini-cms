@@ -1,0 +1,94 @@
+/* CMS 全局样式：阿里橙色系，移动优先（对齐设计原型） */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: #F1F2F5; }
+body {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  color: #12151C; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+input, button, textarea, select { font-family: inherit; outline: none; }
+input::placeholder, textarea::placeholder { color: #A9AFBB; }
+a { color: #FF6A00; text-decoration: none; }
+a:hover { color: #D94C00; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: #D5D9E0; border-radius: 9px; border: 2px solid #F1F2F5; }
+
+:root {
+  --orange: #FF6A00;
+  --orange-dark: #D94C00;
+  --orange-light: #FF8A2B;
+  --orange-bg: #FFF3E9;
+  --blue: #2B5FD9;
+  --green: #0E9F85;
+  --red: #C7361B;
+  --text: #12151C;
+  --text-sub: #5A616E;
+  --text-mute: #8A909E;
+  --border: #EBEDF2;
+  --bg: #F1F2F5;
+  --card: #FFFFFF;
+}
+
+@keyframes flyUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheetUp { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* 应用容器：移动端全宽，桌面端居中最大 480px（移动优先） */
+.app-shell { min-height: 100vh; background: var(--bg); }
+.page { padding: 16px 14px 96px; max-width: 100%; animation: flyUp .4s cubic-bezier(.2,.8,.2,1) both; }
+.page-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.page-title { font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 1px 2px rgba(16,20,28,.04); }
+
+/* 按钮 */
+.btn { border: none; border-radius: 12px; padding: 12px 16px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .16s; }
+.btn-primary { background: linear-gradient(180deg,#FF9138,#FF6A00); color: #fff; box-shadow: 0 8px 20px -8px rgba(255,106,0,.6); }
+.btn-primary:active { transform: scale(.98); }
+.btn-ghost { background: #F3F4F7; color: var(--text-sub); }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 输入 */
+.field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 13px; }
+.field label { font-size: 12px; font-weight: 600; color: #6B7280; }
+.field input, .field textarea {
+  border: 1px solid #E2E5EB; background: #FAFBFC; border-radius: 13px; padding: 13px 14px; font-size: 15px; color: var(--text);
+}
+.field input:focus { border-color: var(--orange-light); background: #fff; }
+
+/* 底部导航 */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: #fff; border-top: 1px solid var(--border); padding: 8px 4px calc(8px + env(safe-area-inset-bottom)); z-index: 50; }
+.tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; color: #9AA0AC; text-decoration: none; padding: 4px 0; }
+.tabbar a.active { color: var(--orange); }
+.tabbar svg { width: 24px; height: 24px; }
+
+/* 头像 */
+.avatar { border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; flex-shrink: 0; }
+
+/* 徽标 */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+
+/* 列表行 */
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; cursor: pointer; transition: transform .12s; }
+.row:active { transform: scale(.99); }
+
+/* toast */
+.toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: rgba(18,21,28,.92); color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 14px; z-index: 200; animation: pop .2s; }
+
+/* 弹窗 */
+.mask { position: fixed; inset: 0; background: rgba(18,21,28,.45); display: flex; align-items: flex-end; justify-content: center; z-index: 100; animation: fadeIn .2s; }
+.sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 22px 22px 0 0; padding: 20px; animation: sheetUp .3s cubic-bezier(.2,.8,.2,1); max-height: 88vh; overflow-y: auto; }
+
+/* 移动端：隐藏桌面侧栏（导航改用底部 tabbar），避免侧栏内容堆到页面顶部 */
+.sidebar { display: none; }
+
+/* 桌面端：左侧栏 + 居中内容 */
+@media (min-width: 900px) {
+  .app-shell { display: flex; }
+  .sidebar { display: flex; flex-direction: column; width: 220px; min-height: 100vh; background: #fff; border-right: 1px solid var(--border); padding: 18px 12px; position: sticky; top: 0; }
+  .sidebar a { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+  .sidebar a.active { background: var(--orange-bg); color: var(--orange); }
+  .main-col { flex: 1; max-width: 880px; margin: 0 auto; padding: 24px 28px; }
+  .tabbar { display: none; }
+  .page { padding-bottom: 32px; }
+}

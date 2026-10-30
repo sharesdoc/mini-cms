@@ -1,0 +1,105 @@
+<mxGraphModel adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="browser" value="浏览器 (用户/管理员)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6E4F0;strokeColor=#0D47A1;fontSize=13;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="300" y="20" width="200" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="web-container" value="前端 Web — Vite + React 18 (:5173)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;fontSize=13;fontStyle=1;startSize=30" vertex="1" parent="1">
+      <mxGeometry x="220" y="100" width="360" height="120" as="geometry"/>
+    </mxCell>
+    <mxCell id="web-pages" value="页面组件" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#F57C00;fontSize=12" vertex="1" parent="web-container">
+      <mxGeometry x="20" y="45" width="130" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="web-api" value="API 客户端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#F57C00;fontSize=12" vertex="1" parent="web-container">
+      <mxGeometry x="200" y="45" width="130" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-br-pages" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0" edge="1" parent="1" source="browser" target="web-pages">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-pages-api" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5" edge="1" parent="1" source="web-pages" target="web-api">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="svc-container" value="后端 svc — Spring Boot 3 + JDK21 (:8080)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;fontStyle=1;startSize=30" vertex="1" parent="1">
+      <mxGeometry x="40" y="260" width="720" height="420" as="geometry"/>
+    </mxCell>
+    <mxCell id="ctrl-auth" value="AuthController&#xa;登录/注册" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="30" y="50" width="120" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="ctrl-biz" value="业务 Controller&#xa;客户/级别/配置" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="180" y="50" width="140" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="int-auth" value="AuthInterceptor&#xa;校验 Authorization: Bearer token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#AD1457;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="250" y="125" width="210" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="svc-user" value="用户服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="30" y="200" width="120" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="svc-biz" value="客户/级别/拓展/升级&#xa;/可见性/禁言" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="180" y="200" width="150" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="svc-cfg" value="系统配置服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A5D6A7;strokeColor=#2E7D32;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="360" y="200" width="130" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="mapper" value="MyBatis XML (纯 SQL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#81C784;strokeColor=#1B5E20;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="180" y="280" width="180" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="cross-token" value="TokenStore&#xa;ConcurrentHashMap&#xa;(12h 有效期)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="530" y="50" width="160" height="60" as="geometry"/>
+    </mxCell>
+    <mxCell id="cross-tlu" value="ThreadLocalUser&#xa;当前用户上下文" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="530" y="130" width="160" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="cross-result" value="Result 统一响应" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="530" y="200" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="cross-ex" value="全局异常处理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11" vertex="1" parent="svc-container">
+      <mxGeometry x="530" y="255" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-web-svc" value="REST JSON /api" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.2;entryY=0;fontSize=10;fontColor=#666666" edge="1" parent="1" source="web-api" target="ctrl-biz">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-ctrl-int" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0" edge="1" parent="svc-container" source="ctrl-biz" target="int-auth">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-int-svc" value="" style="endArrow=classic;html=1;exitX=0.25;exitY=1;entryX=0.5;entryY=0" edge="1" parent="svc-container" source="int-auth" target="svc-biz">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-svc-mapper" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0" edge="1" parent="svc-container" source="svc-biz" target="mapper">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="db" value="MySQL 8" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#FFF9C4;strokeColor=#F57F17;fontSize=13;fontStyle=1" vertex="1" parent="1">
+      <mxGeometry x="310" y="710" width="180" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-mapper-db" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0" edge="1" parent="1" source="mapper" target="db">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-auth-token" value="生成 UUID token" style="endArrow=classic;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.25;fontSize=10;fontColor=#666666" edge="1" parent="svc-container" source="ctrl-auth" target="cross-token">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-token-int" value="注入 Session" style="endArrow=classic;html=1;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.25;fontSize=10;fontColor=#666666" edge="1" parent="svc-container" source="cross-token" target="int-auth">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-int-tlu" value="写入" style="endArrow=classic;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.25;fontSize=10;fontColor=#666666" edge="1" parent="svc-container" source="int-auth" target="cross-tlu">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-svc-tlu" value="取 role / 可见性判定" style="endArrow=classic;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.75;fontSize=10;fontColor=#666666" edge="1" parent="svc-container" source="svc-biz" target="cross-tlu">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="config" value="application.yml&#xa;cms.system.max-level&#xa;(HARD_MAX=3 clamp)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#B2EBF2;strokeColor=#00695C;fontSize=11" vertex="1" parent="1">
+      <mxGeometry x="40" y="700" width="180" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-cfg-svc" value="max-level 约束" style="endArrow=classic;html=1;dashed=1;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;fontColor=#666666" edge="1" parent="1" source="config" target="svc-biz">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-cfg-db" value="读写 quota/upgrade" style="endArrow=classic;html=1;dashed=1;exitX=0.5;exitY=0;entryX=0;entryY=0.5;fontSize=10;fontColor=#666666" edge="1" parent="1" source="svc-cfg" target="db">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-ctrl-result" value="" style="endArrow=classic;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.25;edgeStyle=orthogonalEdgeStyle" edge="1" parent="svc-container" source="ctrl-biz" target="cross-result">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="edge-ctrl-ex" value="" style="endArrow=classic;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle" edge="1" parent="svc-container" source="ctrl-biz" target="cross-ex">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>

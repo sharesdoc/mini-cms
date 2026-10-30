@@ -1,0 +1,44 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  application:
+    name: cms-svc
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/cms?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always            # 启动时执行 schema.sql / data.sql（首次建库建表）
+      continue-on-error: true
+      encoding: UTF-8
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# CMS 业务配置（部署期设定）
+cms:
+  system:
+    # 支持的客户级别数（部署配置文件设定）。代码硬上限 HARD_MAX=3，配 4 也会被 clamp 到 3。
+    max-level: 3
+  admin:
+    # 管理员凭据只从环境变量读取，不写入仓库。
+    name: ${CMS_ADMIN_NAME:admin}
+    password: ${CMS_ADMIN_PASSWORD:}
+  cors:
+    origins: ${CMS_CORS_ORIGINS:http://localhost:5173,http://localhost:4173}
+  token:
+    expire-hours: 12
+
+logging:
+  level:
+    com.cms: DEBUG

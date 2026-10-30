@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cms.user.mapper.UserMapper">
+
+    <resultMap id="userMap" type="com.cms.user.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="idcard" column="idcard"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="avatar" column="avatar"/>
+        <result property="level" column="level"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="quota" column="quota"/>
+        <result property="status" column="status"/>
+        <result property="profileDone" column="profile_done"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <sql id="cols">id, username, password, name, idcard, phone, address, avatar, level, parent_id, quota, status, profile_done, created_at</sql>
+
+    <select id="selectById" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE id = #{id}
+    </select>
+
+    <select id="selectByUsername" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE username = #{username} LIMIT 1
+    </select>
+
+    <select id="countByUsername" resultType="int">
+        SELECT COUNT(*) FROM cms_user WHERE username = #{username} AND status != 'deleted'
+    </select>
+
+    <insert id="insert">
+        INSERT INTO cms_user(id, username, password, name, idcard, phone, address, avatar,
+            level, parent_id, quota, status, profile_done, created_at)
+        VALUES(#{id}, #{username}, #{password}, #{name}, #{idcard}, #{phone}, #{address}, #{avatar},
+            #{level}, #{parentId}, #{quota}, #{status}, #{profileDone}, #{createdAt})
+    </insert>
+
+    <update id="updateProfile">
+        UPDATE cms_user SET name=#{name}, idcard=#{idcard}, phone=#{phone}, address=#{address}, profile_done=#{profileDone}
+        WHERE id=#{id}
+    </update>
+
+    <update id="updateAvatar">
+        UPDATE cms_user SET avatar=#{avatar} WHERE id=#{id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE cms_user SET password=#{password} WHERE id=#{id}
+    </update>
+
+    <update id="claimTarget">
+        UPDATE cms_user SET parent_id=#{parentId}, level=#{level}
+        WHERE id=#{id} AND parent_id IS NULL
+    </update>
+
+    <update id="incrementQuota">
+        UPDATE cms_user SET quota = quota + 1 WHERE id=#{id}
+    </update>
+
+    <update id="updateLevel">
+        UPDATE cms_user SET level=#{level} WHERE id=#{id}
+    </update>
+
+    <update id="updateQuota">
+        UPDATE cms_user SET quota=#{quota} WHERE id=#{id}
+    </update>
+
+    <update id="decrementQuota">
+        UPDATE cms_user SET quota = quota - 1 WHERE id = #{id} AND quota &gt; 0
+    </update>
+
+    <update id="updateStatus">
+        UPDATE cms_user SET status=#{status} WHERE id=#{id}
+    </update>
+
+    <select id="selectChildren" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE parent_id=#{parentId} AND status != 'deleted' ORDER BY created_at DESC
+    </select>
+
+    <select id="countChildren" resultType="int">
+        SELECT COUNT(*) FROM cms_user WHERE parent_id=#{parentId} AND status != 'deleted'
+    </select>
+
+    <select id="selectAllLive" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE status != 'deleted' ORDER BY level ASC, created_at DESC
+    </select>
+
+    <select id="selectAll" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user ORDER BY created_at DESC
+    </select>
+
+    <select id="selectLiveByLevel" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE status != 'deleted' AND level=#{level} ORDER BY created_at DESC
+    </select>
+
+    <select id="searchLive" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user
+        WHERE status != 'deleted' AND (name LIKE CONCAT('%',#{q},'%') OR id LIKE CONCAT('%',#{q},'%') OR username LIKE CONCAT('%',#{q},'%'))
+        ORDER BY level ASC, created_at DESC
+    </select>
+
+    <select id="selectByCreatedAfter" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE status != 'deleted' AND created_at &gt;= #{from}
+    </select>
+
+    <select id="selectRecent" resultMap="userMap">
+        SELECT <include refid="cols"/> FROM cms_user WHERE status != 'deleted' ORDER BY created_at DESC LIMIT #{n}
+    </select>
+
+</mapper>

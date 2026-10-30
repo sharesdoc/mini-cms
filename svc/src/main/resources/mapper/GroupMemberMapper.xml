@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cms.im.group.mapper.GroupMemberMapper">
+
+    <insert id="insertOne">
+        INSERT IGNORE INTO cms_group_member(group_id, user_id, joined_at) VALUES(#{groupId}, #{userId}, #{now})
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT IGNORE INTO cms_group_member(group_id, user_id, joined_at) VALUES
+        <foreach collection="userIds" item="uid" separator=",">
+            (#{groupId}, #{uid}, #{now})
+        </foreach>
+    </insert>
+
+    <select id="selectMembers" resultType="string">
+        SELECT user_id FROM cms_group_member WHERE group_id=#{groupId}
+    </select>
+
+    <select id="isMember" resultType="int">
+        SELECT COUNT(*) FROM cms_group_member WHERE group_id=#{groupId} AND user_id=#{userId}
+    </select>
+
+    <delete id="deleteMember">
+        DELETE FROM cms_group_member WHERE group_id=#{groupId} AND user_id=#{userId}
+    </delete>
+
+    <select id="countMembers" resultType="int">
+        SELECT COUNT(*) FROM cms_group_member WHERE group_id=#{groupId}
+    </select>
+</mapper>

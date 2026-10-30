@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cms.system.mapper.SysConfigMapper">
+
+    <resultMap id="cfgMap" type="com.cms.system.SysConfig">
+        <result property="cfgKey" column="cfg_key"/>
+        <result property="cfgValue" column="cfg_value"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="cfgMap">
+        SELECT cfg_key, cfg_value FROM cms_sys_config
+    </select>
+
+    <select id="selectByKey" resultMap="cfgMap">
+        SELECT cfg_key, cfg_value FROM cms_sys_config WHERE cfg_key=#{key}
+    </select>
+
+    <insert id="upsert">
+        INSERT INTO cms_sys_config(cfg_key, cfg_value) VALUES(#{key}, #{value})
+        ON DUPLICATE KEY UPDATE cfg_value=#{value}
+    </insert>
+</mapper>
